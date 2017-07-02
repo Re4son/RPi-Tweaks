@@ -1,0 +1,11 @@
+[Unit]
+Description=Switch to ondemand cpu governor (unless shift key is pressed)
+After=syslog.target network.target
+
+[Service]
+Type=forking
+ExecStart=/bin/sh /etc/init.d/cpu-governor start
+ExecStop=/bin/sh /etc/init.d/cpu-governor stop
+
+[Install]
+WantedBy=multi-user.target
