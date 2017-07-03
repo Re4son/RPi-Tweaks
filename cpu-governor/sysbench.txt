@@ -3,10 +3,10 @@ Raspberry Pi 3, Sandisk Ultra 32GB
 sysbench --num-threads=4 --test=cpu --cpu-max-prime=20000 --validate run
 
 1. Sticky Fingers 	4.4.50-Re4son-v7+ #12		104.7518s
-2. Kali 2017.1 		4.4.50-Re4son-v7+ #12		117.7504s
+2. Kali 2017.1 		  4.4.50-Re4son-v7+ #12		117.7504s
 3. Raspbian Jessie 	4.9.28-v7+ #998			    135.4428s
-4. Raspbian Jessie	4.4.50-v7+ #970				139.6447s
-5. Kali 2017.1		4.4.50-v7 #1				211.6380s
+4. Raspbian Jessie	4.4.50-v7+ #970				  139.6447s
+5. Kali 2017.1		  4.4.50-v7 #1		        211.6380s
 
 
 Summary sysbench result:
@@ -14,7 +14,255 @@ Raspberry Pi Zero W, Sandisk Ultra 32GB
 sysbench --num-threads=1 --test=cpu --cpu-max-prime=20000 --validate run
 
 1. Sticky Fingers 	4.4.50-Re4son-v7+ #12
-2. Kali 2017.1 		4.4.50-Re4son-v7+ #12
+2. Kali 2017.1 		  4.4.50-Re4son-v7+ #12
 3. Raspbian Jessie 	4.9.28-v7+ #998	
-4. Raspbian Jessie	4.4.50-v7+ #970				919.3852s
-5. Kali 2017.1		4.4.50-v7 #1
+4. Raspbian Jessie	4.4.50-v7+ #970				    919.3852s
+5. Kali 2017.1		  4.4.50-v7 #1
+
+
+Detailed results:
+
+RPi3:
+=======
+Raspbian 4.4.50:
+Linux raspberrypi 4.4.50-v7+ #970 SMP Mon Feb 20 19:18:29 GMT 2017 armv7l GNU/Linux
+sysbench --num-threads=4 --test=cpu --cpu-max-prime=20000 --validate run
+sysbench 0.4.12:  multi-threaded system evaluation benchmark
+
+Running the test with following options:
+Number of threads: 4
+Additional request validation enabled.
+
+
+Doing CPU performance benchmark
+
+Threads started!
+Done.
+
+Maximum prime number checked in CPU test: 20000
+
+
+Test execution summary:
+    total time:                          139.6447s
+    total number of events:              10000
+    total time taken by event execution: 558.4650
+    per-request statistics:
+         min:                                 47.69ms
+         avg:                                 55.85ms
+         max:                                120.98ms
+         approx.  95 percentile:              62.21ms
+
+Threads fairness:
+    events (avg/stddev):           2500.0000/8.22
+    execution time (avg/stddev):   139.6163/0.01
+
+
+
+Raspbian 4.9.28
+Linux raspberrypi 4.9.28-v7+ #998 SMP Mon May 15 16:55:39 BST 2017 armv7l GNU/Linux
+sysbench --num-threads=4 --test=cpu --cpu-max-prime=20000 --validate run
+sysbench 0.4.12:  multi-threaded system evaluation benchmark
+
+Running the test with following options:
+Number of threads: 4
+Additional request validation enabled.
+
+
+Doing CPU performance benchmark
+
+Threads started!
+Done.
+
+Maximum prime number checked in CPU test: 20000
+
+
+Test execution summary:
+    total time:                          135.4428s
+    total number of events:              10000
+    total time taken by event execution: 541.6592
+    per-request statistics:
+         min:                                 47.69ms
+         avg:                                 54.17ms
+         max:                                135.62ms
+         approx.  95 percentile:              60.35ms
+
+Threads fairness:
+    events (avg/stddev):           2500.0000/8.69
+    execution time (avg/stddev):   135.4148/0.01
+
+
+kali 2017.1
+Linux kali 4.4.50-v7 #1 SMP Fri Apr 21 01:18:29 CDT 2017 armv7l GNU/Linux
+sysbench --num-threads=4 --test=cpu --cpu-max-prime=20000 --validate run
+sysbench 0.4.12:  multi-threaded system evaluation benchmark
+
+Running the test with following options:
+Number of threads: 4
+Additional request validation enabled.
+
+
+Doing CPU performance benchmark
+
+Threads started!
+Done.
+
+Maximum prime number checked in CPU test: 20000
+
+
+Test execution summary:
+    total time:                          211.6380s
+    total number of events:              10000
+    total time taken by event execution: 846.4395
+    per-request statistics:
+         min:                                 83.00ms
+         avg:                                 84.64ms
+         max:                                186.31ms
+         approx.  95 percentile:              87.24ms
+
+Threads fairness:
+    events (avg/stddev):           2500.0000/10.17
+    execution time (avg/stddev):   211.6099/0.02	
+
+	
+kali 2017.1 re4son-kernel 4.4.50#12
+Linux kali 4.4.50-Re4son-v7+ #12 SMP Sun Jul 2 11:38:01 AEST 2017 armv7l GNU/Linux
+sysbench --num-threads=4 --test=cpu --cpu-max-prime=20000 --validate run
+sysbench 0.4.12:  multi-threaded system evaluation benchmark
+
+Running the test with following options:
+Number of threads: 4
+Additional request validation enabled.
+
+
+Doing CPU performance benchmark
+
+Threads started!
+Done.
+
+Maximum prime number checked in CPU test: 20000
+
+
+Test execution summary:
+    total time:                          117.7504s
+    total number of events:              10000
+    total time taken by event execution: 470.9082
+    per-request statistics:
+         min:                                 41.48ms
+         avg:                                 47.09ms
+         max:                                128.77ms
+         approx.  95 percentile:              52.59ms
+
+Threads fairness:
+    events (avg/stddev):           2500.0000/15.70
+    execution time (avg/stddev):   117.7271/0.01
+	
+Sticky Fingers 4.4.50-Re4son-v7+ #12
+Linux kali-pi 4.4.50-Re4son-v7+ #12 SMP Sun Jul 2 11:38:01 AEST 2017 armv7l GNU/Linux
+sysbench --num-threads=4 --test=cpu --cpu-max-prime=20000 --validate run
+sysbench 0.4.12:  multi-threaded system evaluation benchmark
+
+Running the test with following options:
+Number of threads: 4
+Additional request validation enabled.
+
+
+Doing CPU performance benchmark
+
+Threads started!
+Done.
+
+Maximum prime number checked in CPU test: 20000
+
+
+Test execution summary:
+    total time:                          104.7518s
+    total number of events:              10000
+    total time taken by event execution: 418.8663
+    per-request statistics:
+         min:                                 41.44ms
+         avg:                                 41.89ms
+         max:                                127.08ms
+         approx.  95 percentile:              42.41ms
+
+Threads fairness:
+    events (avg/stddev):           2500.0000/15.67
+    execution time (avg/stddev):   104.7166/0.01
+	
+
+Summary sysbench result:
+Raspberry Pi 3, Sandisk Ultra 32GB
+sysbench --num-threads=4 --test=cpu --cpu-max-prime=20000 --validate run
+
+1. Sticky Fingers 	4.4.50-Re4son-v7+ #12		104.7518s
+2. Kali 2017.1 		4.4.50-Re4son-v7+ #12		117.7504s
+3. Raspbian Jessie 	4.9.28-v7+ #998				135.4428s
+4. Raspbian Jessie	4.4.50-v7+ #970				139.6447s
+5. Kali 2017.1		4.4.50-v7 #1				211.6380s
+
+
+
+
+RPi Zero W:
+===========
+Raspbian 4.4.50:
+Linux raspberrypi 4.4.50-v7+ #970 SMP Mon Feb 20 19:18:29 GMT 2017 armv7l GNU/Linux
+sysbench --num-threads=1 --test=cpu --cpu-max-prime=20000 --validate run
+sysbench 0.4.12:  multi-threaded system evaluation benchmark
+Running the test with following options:
+Number of threads: 1
+Additional request validation enabled.
+
+
+Doing CPU performance benchmark
+
+Threads started!
+Done.
+
+Maximum prime number checked in CPU test: 20000
+
+
+Test execution summary:
+    total time:                          919.3852s
+    total number of events:              10000
+    total time taken by event execution: 919.3458
+    per-request statistics:
+         min:                                 91.16ms
+         avg:                                 91.93ms
+         max:                                203.81ms
+         approx.  95 percentile:              95.59ms
+
+Threads fairness:
+    events (avg/stddev):           10000.0000/0.00
+    execution time (avg/stddev):   919.3458/0.00
+	
+Raspbian 4.9.28:
+Linux raspberrypi 4.9.28+ #998 Mon May 15 16:50:35 BST 2017 armv6l GNU/Linux
+sysbench --num-threads=1 --test=cpu --cpu-max-prime=20000 --validate run
+sysbench 0.4.12:  multi-threaded system evaluation benchmark
+
+Running the test with following options:
+Number of threads: 1
+Additional request validation enabled.
+
+
+Doing CPU performance benchmark
+
+Threads started!
+Done.
+
+Maximum prime number checked in CPU test: 20000
+
+
+Test execution summary:
+    total time:                          919.5008s
+    total number of events:              10000
+    total time taken by event execution: 919.4520
+    per-request statistics:
+         min:                                 91.15ms
+         avg:                                 91.95ms
+         max:                                218.19ms
+         approx.  95 percentile:              95.64ms
+
+Threads fairness:
+    events (avg/stddev):           10000.0000/0.00
+    execution time (avg/stddev):   919.4520/0.00
