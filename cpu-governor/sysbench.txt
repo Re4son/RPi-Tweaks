@@ -1,0 +1,20 @@
+Summary sysbench result:
+Raspberry Pi 3, Sandisk Ultra 32GB
+sysbench --num-threads=4 --test=cpu --cpu-max-prime=20000 --validate run
+
+1. Sticky Fingers 	4.4.50-Re4son-v7+ #12		104.7518s
+2. Kali 2017.1 		4.4.50-Re4son-v7+ #12		117.7504s
+3. Raspbian Jessie 	4.9.28-v7+ #998			    135.4428s
+4. Raspbian Jessie	4.4.50-v7+ #970				139.6447s
+5. Kali 2017.1		4.4.50-v7 #1				211.6380s
+
+
+Summary sysbench result:
+Raspberry Pi Zero W, Sandisk Ultra 32GB
+sysbench --num-threads=1 --test=cpu --cpu-max-prime=20000 --validate run
+
+1. Sticky Fingers 	4.4.50-Re4son-v7+ #12
+2. Kali 2017.1 		4.4.50-Re4son-v7+ #12
+3. Raspbian Jessie 	4.9.28-v7+ #998	
+4. Raspbian Jessie	4.4.50-v7+ #970				919.3852s
+5. Kali 2017.1		4.4.50-v7 #1
