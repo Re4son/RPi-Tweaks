@@ -1,0 +1,11 @@
+[Unit]
+Description=Turn on avahi-daemon if /boot/avahi is present
+RequiresMountsFor=/boot
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "if [ -f /boot/avahi ] || [ -f /boot/avahi.txt ]; then update-rc.d avahi-daemon enable && invoke-rc.d avahi-daemon start && rm -f /boot/avahi ; rm -f /boot/avahi.txt; fi && umount /boot"
+
+[Install]
+WantedBy=multi-user.target
+
