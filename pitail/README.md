@@ -1,4 +1,4 @@
-# avahiswitch
+# pitail
 
 Raspberry Pi service to copy across /boot/interfaces and /boot/wpa_supplicant.conf is present.  
 
