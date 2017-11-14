@@ -1,5 +1,5 @@
 [Unit]
-Description=Copy /boot/interfaces and /boot/wpa_supplicant.conf across is present
+Description=Copy /boot/interfaces and /boot/wpa_supplicant.conf across if present
 RequiresMountsFor=/boot
 
 Before=network-pre.target
