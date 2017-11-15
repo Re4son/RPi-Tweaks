@@ -1,17 +1,12 @@
 [Unit]
-Description=Copy /boot/interfaces and /boot/wpa_supplicant.conf across if present
-##RequiresMountsFor=/boot
+Description=Configuration of network interfaces for Pitail
 
-Before=network-pre.target
-Wants=network-pre.target
-
-Wants=systemd-modules-load.service local-fs.target
-After=systemd-modules-load.service local-fs.target
+Before=local-fs.target
 
 [Service]
 Type=oneshot
-ExecStart=/bin/sh -c "mount /boot && if [ -f /boot/interfaces ]; then cp -f /boot/interfaces /etc/network/; fi && if [ -f /boot/wpa_supplicant.conf ]; then cp -f /boot/wpa_supplicant.conf /etc/wpa_supplicant/;fi && cp -f /etc/network/interfaces /boot/interfaces.active && cp -f /etc/wpa_supplicant/wpa_supplicant.conf /boot/wpa_supplicant.running && umount /boot"
+ExecStart=/bin/sh -c "mountpoint -q /boot || mount /boot && if [ -f /boot/interfaces ]; then cp -f /boot/interfaces /etc/network/; fi && if [ -f /boot/wpa_supplicant.conf ]; then cp -f /boot/wpa_supplicant.conf /etc/wpa_supplicant/;fi && cp -f /etc/network/interfaces /boot/interfaces.active && cp -f /etc/wpa_supplicant/wpa_supplicant.conf /boot/wpa_supplicant.active"
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=local-fs.target
 

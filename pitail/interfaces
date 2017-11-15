@@ -1,0 +1,34 @@
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+
+allow-hotplug usb1
+iface usb1 inet dhcp
+
+
+allow-hotplug usb0
+iface usb0 inet dhcp
+
+
+allow-hotplug wlan0
+iface wlan0 inet manual
+wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
+
+iface home inet dhcp
+
+iface mobile-1 inet static
+    address 192.168.43.254
+    netmask 255.255.255.0
+    gateway 192.168.43.1
+
+iface mobile-2 inet static
+    address 192.168.43.254
+    netmask 255.255.255.0
+    gateway 192.168.43.1
+
+iface sepultura inet static
+    address 192.168.43.254
+    netmask 255.255.255.0
+    gateway 192.168.43.1
