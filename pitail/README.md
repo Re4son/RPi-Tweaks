@@ -16,7 +16,7 @@ This is particularly useful when using ethernet gadget mode for the initial head
 I advise to disable the avahi-daemon service after the initial setup (systemctl disable avahi-daemon).  
   
 #### To configure Bluetooth tethering:  
-Place a "**_pitailbt.cfg_**" file in /boot with a 4 digit bluetooth PIN. Use this pin to pair your smartphone to the pi within 3 minutes of booting up.  
+Place a "**_pitailbt.cfg_**" file in /boot with mac address PIN pairs of authorised devices. Use this pin to pair your smartphone to the pi within 3 minutes of booting up.  
 NOTE: Bluetooth pan will not be started if this ile doesn't exist, so if you don't want to pait via bluetooth: delete this file.  
   
 #### To install the service:  
