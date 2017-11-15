@@ -23,7 +23,7 @@ NOTE: Bluetooth pan will not be started if this ile doesn't exist, so if you don
 
 *wget -O /lib/systemd/system/pitail.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/pitail.service*  
 *wget -O /lib/systemd/system/pitailbt.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/pitailbt.service*  
-*wget -O /usr/bin/blueagent5 https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/blueagent5*  
-*wget -O /usr/bin/bt-pan https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/bt-pan*  
-*systemctl enable pitail.service && systemctl enable pitailbt.service*  
-*chmod 755 /usr/bin/bt-pan && chmod 755 /usr/bin/blueagent5.py*  
+*wget -O /etc/systemd/network/pan0.network https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/pan0.network*  
+*wget -O /etc/systemd/system/bt-agent.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/bt-agent.service*  
+*wget -O /etc/systemd/system/bt-network.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/bt-network.service*  
+*systemctl enable pitail.service && systemctl enable pitailbt.service && systemctl enable systemd-networkd && systemctl enable bt-agent && systemctl enable bt-network*  

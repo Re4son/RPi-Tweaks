@@ -1,0 +1,10 @@
+[Unit]
+Description=Bluetooth NEP PAN
+After=pan0.network
+
+[Service]
+ExecStart=/usr/bin/bt-network -s nap pan0
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

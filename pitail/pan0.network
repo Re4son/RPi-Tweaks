@@ -1,0 +1,6 @@
+[Match]
+Name=pan0
+
+[Network]
+Address=192.168.41.1/30
+DHCPServer=yes
