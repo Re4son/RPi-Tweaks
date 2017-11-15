@@ -1,0 +1,10 @@
+[Unit]
+Description=BlueAgent5 service for Pitail
+After=bluetooth.service
+Requires=bluetooth.service
+ 
+[Service]
+ExecStart=if [ -f /etc/pitailbt.conf ]; then /usr/bin/blueagent5 --pin $(< /etc/pitailbt.conf); fi
+ 
+[Install]
+WantedBy=multi-user.target
