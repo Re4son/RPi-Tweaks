@@ -4,7 +4,8 @@ After=bluetooth.service
 Requires=bluetooth.service
  
 [Service]
-ExecStart=if [ -f /etc/pitailbt.conf ]; then bt-adapter --set DiscoverableTimeout 180\
+ExecStart=if [ -f /etc/pitailbt.conf ]; then sleep 5\
+&& bt-adapter --set DiscoverableTimeout 180\
 && bt-adapter --set PairableTimeout 180\
 && bt-adapter --set Pairable 1;\
 && bt-adapter --set Discoverable 1; fi

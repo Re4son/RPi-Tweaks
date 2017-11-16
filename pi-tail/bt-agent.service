@@ -2,7 +2,7 @@
 Description=Bluetooth Auth Agent
 
 [Service]
-ExecStart=/usr/bin/bt-agent -p /etc/pitailbt.cfg -c NoInputNoOutput
+ExecStart=/usr/bin/bt-agent -p /etc/pitailbt.conf -c DisplayOnly
 Type=simple
 
 [Install]

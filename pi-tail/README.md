@@ -1,4 +1,4 @@
-# Pitail
+# Pi-Tail
 
 Raspberry Pi services to configure tethering.  
 
@@ -16,14 +16,14 @@ This is particularly useful when using ethernet gadget mode for the initial head
 I advise to disable the avahi-daemon service after the initial setup (systemctl disable avahi-daemon).  
   
 #### To configure Bluetooth tethering:  
-Place a "**_pitailbt.cfg_**" file in /boot with mac address PIN pairs of authorised devices. Use this pin to pair your smartphone to the pi within 3 minutes of booting up.  
-NOTE: Bluetooth pan will not be started if this ile doesn't exist, so if you don't want to pait via bluetooth: delete this file.  
+Place a "**_pi-tailbt.conf_**" file in /boot with mac addresses of authorised devices. Pair to the Pi-Tail the pi within 3 minutes of booting up.  
+NOTE: Bluetooth pan will not be started if this ile doesn't exist, so if you don't want to pair via bluetooth: delete this file.  
   
 #### To install the service:  
 
-*wget -O /lib/systemd/system/pitail.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/pitail.service*  
-*wget -O /lib/systemd/system/pitailbt.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/pitailbt.service*  
+*wget -O /etc/systemd/system/pi-tail.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/pi-tail.service*  
+*wget -O /etc/systemd/system/pi-tailbt.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/pi-tailbt.service*  
 *wget -O /etc/systemd/network/pan0.network https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/pan0.network*  
 *wget -O /etc/systemd/system/bt-agent.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/bt-agent.service*  
 *wget -O /etc/systemd/system/bt-network.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pitail/bt-network.service*  
-*systemctl enable pitail.service && systemctl enable pitailbt.service && systemctl enable systemd-networkd && systemctl enable bt-agent && systemctl enable bt-network*  
+*systemctl enable pi-tail.service && systemctl enable pi-tailbt.service && systemctl enable systemd-networkd && systemctl enable bt-agent && systemctl enable bt-network*  
