@@ -1,14 +1,14 @@
 [Unit]
-Description=BlueAgent5 service for Pi-Tail
+Description=BT-Agent service for Pi-Tail
 After=bluetooth.service
 Requires=bluetooth.service
  
 [Service]
-ExecStart=if [ -f /etc/pi-tailbt.conf ]; then sleep 5\
+ExecStart=/bin/sh -c "if [ -f /etc/pi-tailbt.conf ]; then sleep 5\
 && bt-adapter --set DiscoverableTimeout 180\
 && bt-adapter --set PairableTimeout 180\
 && bt-adapter --set Pairable 1;\
-&& bt-adapter --set Discoverable 1; fi
+&& bt-adapter --set Discoverable 1; fi"
  
 [Install]
 WantedBy=multi-user.target
