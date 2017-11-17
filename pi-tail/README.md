@@ -26,4 +26,7 @@ NOTE: Bluetooth pan will not be started if this ile doesn't exist, so if you don
 *wget -O /etc/systemd/network/pan0.network https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pan0.network*  
 *wget -O /etc/systemd/system/bt-agent.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/bt-agent.service*  
 *wget -O /etc/systemd/system/bt-network.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/bt-network.service*  
+*wget -O /boot/interfaces.example https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces.example*  
+*wget -O /boot/pi-tailbt.example https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tailbt.example*  
+*wget -O /boot/wpa_supplicant.example https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/wpa_supplicant.example*  
 *systemctl enable pi-tail.service && systemctl enable pi-tailbt.service && systemctl enable systemd-networkd && systemctl enable bt-agent && systemctl enable bt-network*  
