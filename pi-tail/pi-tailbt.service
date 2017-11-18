@@ -1,14 +1,15 @@
 [Unit]
-Description=BlueAgent5 service for Pitail
+Description=BT-Agent service for Pi-Tail
 After=bluetooth.service
 Requires=bluetooth.service
  
 [Service]
 ExecStart=if [ -f /etc/pitailbt.conf ]; then sleep 2\
+&& bt-adapter --set Powered 1\
 && bt-adapter --set DiscoverableTimeout 180\
 && bt-adapter --set PairableTimeout 180\
-&& bt-adapter --set Pairable 1;\
-&& bt-adapter --set Discoverable 1; fi
+&& bt-adapter --set Pairable 1\
+&& bt-adapter --set Discoverable 1; fi"
  
 [Install]
 WantedBy=multi-user.target
