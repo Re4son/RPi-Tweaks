@@ -29,6 +29,8 @@ NOTE: Bluetooth pan will not be started if this ile doesn't exist, so if you don
 *wget -O /etc/systemd/system/bt-network.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/bt-network.service*  
 *wget -O /lib/systemd/system/bluetooth.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/bluetooth.service*  
 *wget -O /lib/systemd/system/hciuart.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/hciuart.service*  
+wget -O /boot/cmdline.storage https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.storage*  
+wget -O /boot/cmdline.txt https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/cmdline.eth*    
 *wget -O /boot/interfaces https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces*  
 *wget -O /boot/pi-tailbt.example https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tailbt.example*  
 *wget -O /boot/wpa_supplicant https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/wpa_supplicant*  
