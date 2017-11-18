@@ -1,0 +1,41 @@
+IMPORTANT:
+                       Dont' edit:
+                         /etc/network/interfaces
+                         /etc/wpa_supplicant.conf
+                       They are being overwritten at boot time. Use their equivalent in the /boot/ directory.
+
+DEFAULTS:
+                       Out of the box the following modes are enabled:
+                         - USB mass storage
+                         - Wifi Tethering (sepultura / R4t4m4h4t4)
+
+HOWTO use different modes:
+
+1.    USB mass storage:
+                       Access /boot/ from any device as if Pi-Tail was a USB stick:
+                       Plug USB cable into USB port (not power port) of Pi-Tail and connect to your device (PC/Phone/...)
+                       Only works when usbX is commented out in /boot/interfaces (default)
+
+2.    WiFi tethering:
+                       Pi-Tail will connect to the AP's defined in:
+                         /boot/interfaces
+                         /etc/wpa_supplicant.conf
+                       Out of the box it will connect to the following hotspot:
+                         SSID:      sepultura
+                         Password:  R4t4m4h4t4
+                       Plug USB cable into power port of Pi-Tail and connect to your device (PC/Phone/...)
+
+3.     Bluetooth Tethering:
+                       You can pair with Pi-Tail within 3 minutes of booting.
+                       No PIN required (haven't figured out yet how to make it work).
+                       To enable this mode, create
+                         /boot/pi-tail.conf
+                       With the MAC address of the device(s) permitted to connect, e.g.
+                         AA:BB:CC:DD:EE:FF *
+                       Plug USB cable into power port of Pi-Tail and connect to your device (PC/Phone/...)
+
+4.      USB tethering:
+                       Uncomment the "usb0" stanza in /boot/interfaces
+                       Plug USB cable into USB port (not power port) of Pi-Tail and connect to your device (PC/Phone/...)
+                       
+                       Some phones require the Pi-Tail to be powered separately to make this work.
