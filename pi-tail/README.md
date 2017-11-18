@@ -29,8 +29,9 @@ NOTE: Bluetooth pan will not be started if this ile doesn't exist, so if you don
 *wget -O /etc/systemd/system/bt-network.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/bt-network.service*  
 *wget -O /lib/systemd/system/bluetooth.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/bluetooth.service*  
 *wget -O /lib/systemd/system/hciuart.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/hciuart.service*  
-*wget -O /boot/interfaces.example https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces.example*  
+*wget -O /boot/interfaces https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/interfaces*  
 *wget -O /boot/pi-tailbt.example https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tailbt.example*  
-*wget -O /boot/wpa_supplicant.example https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/wpa_supplicant.example*  
+*wget -O /boot/wpa_supplicant https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/wpa_supplicant*  
 *wget -O /boot/Pi-Tail.README https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/Pi-Tail.README*  
+*wget -O /boot/Pi-Tail.HOWTO https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/Pi-Tail.HOWTO*  
 *systemctl enable pi-tail.service && systemctl enable pi-tailbt.service && systemctl enable pi-tailms.service && systemctl enable systemd-networkd && systemctl enable bt-agent && systemctl enable bt-network*  
