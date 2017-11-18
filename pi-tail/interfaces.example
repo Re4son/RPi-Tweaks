@@ -1,16 +1,10 @@
 auto lo
 iface lo inet loopback
 
-auto eth0
-iface eth0 inet dhcp
-
-allow-hotplug usb1
-iface usb1 inet dhcp
-
-
-allow-hotplug usb0
-iface usb0 inet dhcp
-
+auto pan0
+iface pan0 inet dhcp
+  bridge_stp off
+  bridge_ports eth0
 
 allow-hotplug wlan0
 iface wlan0 inet manual
@@ -32,3 +26,14 @@ iface sepultura inet static
     address 192.168.43.254
     netmask 255.255.255.0
     gateway 192.168.43.1
+
+allow-hotplug usb0
+iface usb0 inet dhcp
+
+#allow-hotplug usb1
+#iface usb1 inet dhcp
+
+#auto eth0
+#iface eth0 inet dhcp
+
+
