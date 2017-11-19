@@ -4,7 +4,7 @@ iface lo inet loopback
 auto pan0
 iface pan0 inet dhcp
   bridge_stp off
-  bridge_ports eth0
+  bridge_ports lo
 
 allow-hotplug wlan0
 iface wlan0 inet manual
