@@ -1,1 +1,8 @@
+Choose your cables carefully. This works for me:
+
+USB mass storage: OTG adapter in smartphone, standard cable in Pi-Tail USB port
+Bluetooth/Wifi  : OTG adapter in smartphone, standard cable in Pi-Tail power (USB is free for dongles)
+USB ethernet    : Standard cable in smartphone, OTG adapter in Pi-Tail USB port (you might need external power supply
+
+
 Read Pi-Tail.HOWTO
