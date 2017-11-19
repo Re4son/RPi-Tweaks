@@ -38,7 +38,7 @@ iface usb1 inet static
     netmask 255.255.255.0
     gateway 192.168.42.1
 
-#auto eth0
-#iface eth0 inet dhcp
+auto eth0
+iface eth0 inet dhcp
 
 
