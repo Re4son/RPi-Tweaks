@@ -5,4 +5,6 @@ Bluetooth/Wifi  : OTG adapter in smartphone, standard cable in Pi-Tail power (US
 USB ethernet    : Standard cable in smartphone, OTG adapter in Pi-Tail USB port (you might need external power supply
 
 
+Once connected, please change root password, vnc password and wifi password
+
 Read Pi-Tail.HOWTO
