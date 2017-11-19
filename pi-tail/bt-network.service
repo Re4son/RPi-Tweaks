@@ -1,6 +1,6 @@
 [Unit]
 Description=Bluetooth NEP PAN
-After=pan0.network
+#After=pan0.network
 
 [Service]
 ExecStart=/bin/sh -c "if [ -f /etc/pi-tailbt.conf ]; then /usr/bin/bt-network -s nap pan0; fi"
