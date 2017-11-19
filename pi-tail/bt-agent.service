@@ -2,7 +2,7 @@
 Description=Bluetooth Auth Agent
 
 [Service]
-ExecStart=/usr/bin/bt-agent -p /etc/pi-tailbt.conf -c DisplayOnly
+ExecStart=/bin/sh -c "if [ -f /etc/pitailbt.conf ]; then /usr/bin/bt-agent -p /etc/pi-tailbt.conf -c DisplayOnly; fi"
 Type=simple
 
 [Install]
