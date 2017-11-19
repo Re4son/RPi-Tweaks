@@ -7,7 +7,13 @@ IMPORTANT:
 DEFAULTS:
                        Out of the box the following modes are enabled:
                          - USB mass storage
-                         - Wifi Tethering (sepultura / R4t4m4h4t4)
+                         - Wifi Tethering (sepultura / R4t4m4h4tt4)
+                       Passwords:
+                         - ssh: root / toor
+                         - vnc: toortoor
+                         
+                       Change passwords and default hotspot config after first connect.
+                         
 
 HOWTO use different modes:
 
