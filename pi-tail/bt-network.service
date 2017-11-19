@@ -3,7 +3,7 @@ Description=Bluetooth NEP PAN
 After=pan0.network
 
 [Service]
-ExecStart=/usr/bin/bt-network -s nap pan0
+ExecStart=/bin/sh -c "if [ -f /etc/pitailbt.conf ]; then /usr/bin/bt-network -s nap pan0; fi"
 Type=simple
 
 [Install]
