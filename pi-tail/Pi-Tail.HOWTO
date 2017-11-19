@@ -13,6 +13,11 @@ DEFAULTS:
                          - vnc: toortoor
                          
                        Change passwords and default hotspot config after first connect.
+                       
+Default IP addresses:
+                       Wifi           : 192.168.43.254
+                       Bluetooth      : 192.168.41.1
+                       USB            : 192.168.42.250
                          
 
 HOWTO use different modes:
