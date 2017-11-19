@@ -22,7 +22,7 @@ HOWTO use different modes:
                          /etc/wpa_supplicant.conf
                        Out of the box it will connect to the following hotspot:
                          SSID:      sepultura
-                         Password:  R4t4m4h4t4
+                         Password:  R4t4m4h4tt4
                        Plug USB cable into power port of Pi-Tail and connect to your device (PC/Phone/...)
 
 3.     Bluetooth Tethering:
