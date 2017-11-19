@@ -27,9 +27,11 @@ iface sepultura inet static
     netmask 255.255.255.0
     gateway 192.168.43.1
 
+# usb0 is often picked for PC connections
 allow-hotplug usb0
 iface usb0 inet dhcp
 
+# usb1 is typically picked by connections to smartphones
 allow-hotplug usb1
 iface usb1 static
     address 192.168.42.254
