@@ -5,7 +5,7 @@ After=networking.service
 [Service]
 Type=oneshot
 ExecStart=/bin/sh -c "sleep 2 && if [ ! $(ip link | grep usb) ]; then\
-modprobe g_mass_storage file=/dev/mmcblk0p1 stall=0; fi"
+modprobe g_mass_storage file=/dev/mmcblk0p1 stall=0 removable=1; fi"
 
 [Install]
 WantedBy=multi-user.target
