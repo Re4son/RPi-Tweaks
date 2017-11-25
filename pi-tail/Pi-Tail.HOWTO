@@ -7,17 +7,22 @@ IMPORTANT:
 DEFAULTS:
                        Out of the box the following modes are enabled:
                          - USB mass storage
-                         - Wifi Tethering (sepultura / R4t4m4h4tt4)
+                         - Wifi Tethering to mobile hotspot (sepultura / R4t4m4h4tt4)
+
                        Passwords:
-                         - ssh: root / toor
-                         - vnc: toortoor
+                         - ssh:     root / toor
+                         - vnc:     toortoor
+                         - wifi:    sepultura / R4t4m4h4tt4
+                         - wifi-ap: Pi-Tail / StickyFing3rsKal1-P!
                          
                        Change passwords and default hotspot config after first connect.
                        
 Default IP addresses:
                        Wifi           : 192.168.43.254
-                       Bluetooth      : 192.168.41.1
                        USB            : 192.168.42.250
+                       Bluetooth      : 192.168.41.1
+                       WiFi-AP        : 192.168.40.1
+                       
                          
 
 HOWTO use different modes:
@@ -38,7 +43,7 @@ HOWTO use different modes:
                          Password:  R4t4m4h4tt4
                        Plug USB cable into power port of Pi-Tail and connect to your device (PC/Phone/...)
 
-3.     Bluetooth Tethering:
+3.    Bluetooth Tethering:
                        You can pair with Pi-Tail within 3 minutes of booting.
                        No PIN required (haven't figured out yet how to make it work).
                        To enable this mode, create
@@ -47,7 +52,7 @@ HOWTO use different modes:
                          AA:BB:CC:DD:EE:FF *
                        Plug USB cable into power port of Pi-Tail and connect to your device (PC/Phone/...)
 
-4.      USB tethering:
+4.    USB tethering:
                        To toggle between USB mass storage & USB ethernet replace /boot/cmdline.txt with either of these:
                           - /boot/cmdline.storage (default)
                           - /boot/cmdline.ether
@@ -55,3 +60,56 @@ HOWTO use different modes:
                        Plug USB cable into USB port (not power port) of Pi-Tail and connect to your device (PC/Phone/...)
                        
                        Some phones require the Pi-Tail to be powered separately to make this work.
+                       
+
+5.    WiFi-AP tethering:
+                       Pi-Tail will start a WiFi AP as configured in:
+                         /opt/Kali-Pi/Menus/RAS-AP/ras-ap.sh
+                         /opt/Kali-Pi/Menus/RAS-AP/ras-ap.conf
+                         /opt/Kali-Pi/Menus/RAS-AP/dnsmasq-dhcpd.conf
+                       
+                       To enable this mode, edit /boot/interfaces:
+                        - disable the "wlan0" stanza
+                        - Enable WiFi AP, i.e:
+                          # WiFi AP = Enable
+                          
+                          Important: leave the line commented out, just replace Disable with Enable
+                          
+                       To disable this mode, edit /boot/interfaces:
+                        - enable the "wlan0" stanza
+                        - Disable WiFi AP, i.e:
+                          # WiFi AP = Enable
+                          
+                          Important: leave the line commented out, just replace Enable with Disable
+                       
+                       Out of the box, the hotspot is configured with these credentials:
+                         SSID:      Pi-Tail
+                         Password:  StickyFing3rsKal1-P!
+                         
+                       Plug USB cable into power port of Pi-Tail and connect to your device (PC/Phone/...)
+                       
+                       
+
+Horses for courses:
+
+There is no "one fits all" mode. The following are some pros and cons:
+
+1.    USB mass storage:
+                       Pros: Allows editing of configuration files in /boot/
+                       Cons: Doesn't allow anything else. Must be disabled to enable USB tethering
+                       
+2.    WiFi tethering:
+                       Pros: Fastest and most convenient mode for phones; allows Internet access from the Pi-Tail
+                       Cons: Can't put wlan0 into monitor mode. That means you need another wifi adapter for aircrack-ng
+                       
+3.    Bluetooth Tethering:
+                       Pros: Allows putting wlan0 into monitor mode. Best mode for wifi attacks
+                       Cons: Slowest mode and no Internet access   
+                       
+4.    USB Tethering:
+                       Pros: Fastest and most convenient mode for PC's. Good for everything except USB mass storage access
+                       Cons: Pi-Tail needs external power supply for this mode to work with smartphones
+                       
+5.    WiFi-AP tetherin:
+                       Pros: Not sure
+                       Cons: No Internet access; can't put wlan0 into monitor mode. That means you need another wifi adapter for aircrack-ng
