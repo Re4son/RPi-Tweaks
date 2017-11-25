@@ -9,7 +9,7 @@
 ### END INIT INFO
 
 phy=wlan0
-export MENUDIR="/opt/Kali-Pi/Menus/"
+export MENUDIR="/opt/Kali-Pi/Menus"
 
 start() {
         echo "--------------------------------"
