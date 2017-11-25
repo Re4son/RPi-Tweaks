@@ -1,0 +1,10 @@
+[Unit]
+Description=Hostapd service for Pi-Tail
+After=network.service
+Requires=network.service
+ 
+[Service]
+ExecStart=/bin/sh -c " if [ grep -q "WiFi AP = Enable" "/etc/network/interfaces"; then /opt/Kali-Pi/Menus/RAS-AP/ras-ap.sh; fi
+ 
+[Install]
+WantedBy=multi-user.target
