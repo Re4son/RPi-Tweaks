@@ -43,7 +43,7 @@ HOWTO use different modes:
                          Password:  R4t4m4h4tt4
                        Plug USB cable into power port of Pi-Tail and connect to your device (PC/Phone/...)
 
-3.    Bluetooth Tethering:
+3.    Bluetooth tethering:
                        You can pair with Pi-Tail within 3 minutes of booting.
                        No PIN required (haven't figured out yet how to make it work).
                        To enable this mode, create
@@ -102,14 +102,14 @@ There is no "one fits all" mode. The following are some pros and cons:
                        Pros: Fastest and most convenient mode for phones; allows Internet access from the Pi-Tail
                        Cons: Can't put wlan0 into monitor mode. That means you need another wifi adapter for aircrack-ng
                        
-3.    Bluetooth Tethering:
+3.    Bluetooth tethering:
                        Pros: Allows putting wlan0 into monitor mode. Best mode for wifi attacks
                        Cons: Slowest mode and no Internet access   
                        
-4.    USB Tethering:
+4.    USB tethering:
                        Pros: Fastest and most convenient mode for PC's. Good for everything except USB mass storage access
                        Cons: Pi-Tail needs external power supply for this mode to work with smartphones
                        
-5.    WiFi-AP tetherin:
+5.    WiFi-AP tethering:
                        Pros: Not sure
                        Cons: No Internet access; can't put wlan0 into monitor mode. That means you need another wifi adapter for aircrack-ng
