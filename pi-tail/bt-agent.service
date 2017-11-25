@@ -1,5 +1,6 @@
 [Unit]
 Description=Bluetooth Auth Agent
+After=bluetooth.service
 
 [Service]
 ExecStart=/bin/sh -c "if [ -f /etc/pi-tailbt.conf ]; then /usr/bin/bt-agent -p /etc/pi-tailbt.conf -c DisplayOnly; fi"
