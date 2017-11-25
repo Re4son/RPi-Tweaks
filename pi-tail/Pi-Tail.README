@@ -2,8 +2,10 @@ Choose your cables carefully. This works for me:
 
 USB mass storage: OTG adapter in smartphone, standard cable in Pi-Tail USB port
 Bluetooth/Wifi  : OTG adapter in smartphone, standard cable in Pi-Tail power (USB is free for dongles)
-USB ethernet    : Standard cable in smartphone, OTG adapter in Pi-Tail USB port (you might need external power supply
+USB ethernet    : Standard cable in smartphone, OTG adapter in Pi-Tail USB port (you might need an external power supply)
 
+Install your favourite ssh and vnc client on your smartphone and connect to the ip address listed in the HOWTO.
+I am pretty happy with ConnectBot and RealVNC viewer.
 
 Once connected, please change root password, vnc password and wifi password
 
