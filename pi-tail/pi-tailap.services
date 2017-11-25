@@ -4,7 +4,8 @@ After=network.service
 Requires=network.service
  
 [Service]
-ExecStart=/bin/sh -c " if [ grep -q "WiFi AP = Enable" "/etc/network/interfaces"; then /opt/Kali-Pi/Menus/RAS-AP/ras-ap.sh; fi
+Type=forking
+ExecStart=/bin/sh -c 'if grep -q "WiFi AP = Enable' '/etc/network/interfaces'; then /opt/Kali-Pi/Menus/RAS-AP/ras-ap.sh start; fi"
  
 [Install]
 WantedBy=multi-user.target
