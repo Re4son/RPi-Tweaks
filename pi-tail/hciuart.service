@@ -2,12 +2,11 @@
 Description=Configure Bluetooth Modems connected by UART
 ConditionPathIsDirectory=/proc/device-tree/soc/gpio@7e200000/bt_pins
 Before=bluetooth.service
-After=dev-serial1.device
+After=networking.service
 
 [Service]
 Type=forking
-ExecStart=/bin/bash -c "sleep 1 && /usr/bin/btuart"
-#ExecStart=/usr/bin/btuart
+ExecStart=/usr/bin/btuart
 Restart=on-failure
 
 [Install]
