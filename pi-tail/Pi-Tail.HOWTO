@@ -87,7 +87,10 @@ HOWTO use different modes:
                          Password:  StickyFing3rsKal1-P!
                          
                        Plug USB cable into power port of Pi-Tail and connect to your device (PC/Phone/...)
-                       
+                       This mode removes the nexmon drivers. You should re-install them
+                             when you are switching to another mode via:
+                             cd /usr/local/src/re4son-kernel_4*/
+                             ./install -x
                        
 
 Horses for courses:
@@ -112,4 +115,9 @@ There is no "one fits all" mode. The following are some pros and cons:
                        
 5.    WiFi-AP tethering:
                        Pros: Not sure
-                       Cons: No Internet access; can't put wlan0 into monitor mode. That means you need another wifi adapter for aircrack-ng
+                       Cons: No Internet access; can't put wlan0 into monitor mode.
+                             That means you need another wifi adapter for wifi attacks.
+                             This mode removes the nexmon drivers. You should re-install them
+                             when you are switching to another mode via:
+                             cd /usr/local/src/re4son-kernel_4*/
+                             ./install -x
