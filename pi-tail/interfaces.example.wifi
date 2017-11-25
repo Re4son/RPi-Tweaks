@@ -6,6 +6,8 @@ iface pan0 inet dhcp
   bridge_stp off
   bridge_ports lo
 
+# WiFi AP = Disable ## Leave commented out, only define Enable OR Disable
+                    ## When enabled, comment out the wlan0 stanza
 allow-hotplug wlan0
 iface wlan0 inet manual
 wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
