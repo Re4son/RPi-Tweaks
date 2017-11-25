@@ -1,0 +1,44 @@
+auto lo
+iface lo inet loopback
+
+auto pan0
+iface pan0 inet dhcp
+  bridge_stp off
+  bridge_ports lo
+
+# WiFi AP = Enable  ## Leave commented out, only define Enable OR Disable
+                    ## When enabled, comment out the wlan0 stanza
+##allow-hotplug wlan0
+##iface wlan0 inet manual
+##wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
+
+iface home inet dhcp
+
+iface mobile-1 inet static
+    address 192.168.43.254
+    netmask 255.255.255.0
+    gateway 192.168.43.1
+
+iface mobile-2 inet static
+    address 192.168.43.254
+    netmask 255.255.255.0
+    gateway 192.168.43.1
+
+iface sepultura inet static
+    address 192.168.43.254
+    netmask 255.255.255.0
+    gateway 192.168.43.1
+
+# usb0 is often picked for PC connections
+allow-hotplug usb0
+iface usb0 inet dhcp
+
+# usb1 is typically picked by connections to smartphones
+allow-hotplug usb1
+iface usb1 inet static
+    address 192.168.42.254
+    netmask 255.255.255.0
+    gateway 192.168.42.1
+
+auto eth0
+iface eth0 inet dhcp
