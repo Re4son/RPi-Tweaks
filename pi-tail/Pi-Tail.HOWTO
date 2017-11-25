@@ -106,7 +106,7 @@ There is no "one fits all" mode. The following are some pros and cons:
                        Cons: Can't put wlan0 into monitor mode. That means you need another wifi adapter for aircrack-ng
                        
 3.    Bluetooth tethering:
-                       Pros: Allows putting wlan0 into monitor mode. Best mode for wifi attacks
+                       Pros: None. In theory, it allows putting wlan0 into monitor mode but in practice it doesn't work
                        Cons: Slowest mode and no Internet access   
                        
 4.    USB tethering:
