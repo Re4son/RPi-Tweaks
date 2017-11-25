@@ -10,7 +10,8 @@ iface pan0 inet dhcp
                     ## When enabled, comment out the wlan0 stanza
 allow-hotplug wlan0
 iface wlan0 inet manual
-wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
+  wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
+  post-up iw wlan0 set power_save off
 
 iface home inet dhcp
 
