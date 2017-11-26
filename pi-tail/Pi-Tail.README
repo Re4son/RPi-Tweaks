@@ -15,6 +15,6 @@ Read Pi-Tail.HOWTO
 TIPS: 
       I'd use 
              - Wifi tethering for smartphone or tablet connections (Use an external dongle for wifi attacks)
-             - USB tethering for PC or Laptop connections (or use battery for smartphone connection)
+             - USB tethering for PC or Laptop connections (or use a battery for smartphone connection)
              
              - Bluetooth doesn't play nice with wifi attacks so don't even bother
