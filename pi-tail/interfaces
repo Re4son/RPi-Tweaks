@@ -38,8 +38,11 @@ iface usb0 inet static
     gateway 192.168.42.129
 
 # PC
-allow-hotplug usb1
-iface usb1 inet dhcp
+allow-hotplug usb9
+iface usb9 inet static
+    address 192.168.44.254
+    netmask 255.255.255.0
+    gateway 192.168.44.1
 
 auto eth0
 iface eth0 inet dhcp
