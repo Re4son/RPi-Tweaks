@@ -18,8 +18,9 @@ DEFAULTS:
                        Change passwords and default hotspot config after first connect.
                        
 Default IP addresses:
+                       USB/PC         : 192.168.44.254 (PC IP: 192.168.44.1)
                        Wifi           : 192.168.43.254
-                       USB            : 192.168.42.250
+                       USB/Smartphone : 192.168.42.254 (Phone IP: 192.168.42.129)
                        Bluetooth      : 192.168.41.1
                        WiFi-AP        : 192.168.40.1
                        
