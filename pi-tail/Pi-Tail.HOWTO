@@ -27,7 +27,14 @@ Default USB ethernet MAC addresses:
                        Host: 3a:ea:66:54:bc:a1
                        Dev : 3a:ea:66:54:bc:a2
                        
-                         
+
+HOWTO put wlan0 into monitor mode:
+                       wlan0 can be used both, in tethering and monitor mode at the same time.
+                       
+                       Monitor on (mon0):
+                            mon0up #This will create and start up a monitoring interface "mon0"
+                       Monitor off:
+                            mon0down #This will bring down and remove mon0
 
 HOWTO use different modes:
 
@@ -107,10 +114,10 @@ There is no "one fits all" mode. The following are some pros and cons:
                        
 2.    WiFi tethering:
                        Pros: Fastest and most convenient mode for phones; allows Internet access from the Pi-Tail
-                       Cons: Can't put wlan0 into monitor mode. That means you need another wifi adapter for aircrack-ng
+                       Cons: Not sure
                        
 3.    Bluetooth tethering:
-                       Pros: None. In theory, it allows putting wlan0 into monitor mode but in practice it doesn't work
+                       Pros: Not sure
                        Cons: Slowest mode and no Internet access   
                        
 4.    USB tethering:
