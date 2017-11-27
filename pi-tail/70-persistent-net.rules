@@ -1,4 +1,4 @@
 # USB device 0x:0x (ath9k_htc)
 SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="wlan*", NAME="wlan1"
 # USB ethernet
-SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="usb*", NAME="usb0"
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="3a:ea:66:54:bc:a2", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="usb*", NAME="usb9"
