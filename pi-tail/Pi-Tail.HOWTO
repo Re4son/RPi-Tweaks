@@ -23,6 +23,10 @@ Default IP addresses:
                        Bluetooth      : 192.168.41.1
                        WiFi-AP        : 192.168.40.1
                        
+Default USB ethernet MAC addresses:
+                       Host: 3a:ea:66:54:bc:a1
+                       Dev : 3a:ea:66:54:bc:a2
+                       
                          
 
 HOWTO use different modes:
