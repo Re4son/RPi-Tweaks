@@ -4,7 +4,7 @@ iface lo inet loopback
 auto pan0
 iface pan0 inet dhcp
   bridge_stp off
-  bridge_ports lo
+  bridge_ports none
 
 # WiFi AP = Disable ## Leave commented out, only define Enable OR Disable
                     ## When enabled, comment out the wlan0 stanza
