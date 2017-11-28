@@ -115,11 +115,12 @@ There is no "one fits all" mode. The following are some pros and cons:
                        
 2.    WiFi tethering:
                        Pros: Fastest and most convenient mode for phones; allows Internet access from the Pi-Tail
-                       Cons: Not sure
+                       Cons: You're including your own traffic when sniffing wifi. Just run your tcpdump in a tmux session and disconnect
+                             for a while.
                        
 3.    Bluetooth tethering:
-                       Pros: Not sure
-                       Cons: Slowest mode and no Internet access   
+                       Pros: You're not including your own communication in your wifi sniff
+                       Cons: Slowest mode and no Internet access. Need a stable power supply if using wifi at the same time.   
                        
 4.    USB tethering:
                        Pros: Fastest and most convenient mode for PC's. Good for everything except USB mass storage access
