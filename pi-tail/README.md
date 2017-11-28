@@ -17,7 +17,9 @@ I advise to disable the avahi-daemon service after the initial setup (systemctl 
   
 #### To configure Bluetooth tethering:  
 Place a "**_pi-tailbt.conf_**" file in /boot with mac addresses of authorised devices. Pair to the Pi-Tail the pi within 3 minutes of booting up.  
-NOTE: Bluetooth pan will not be started if this ile doesn't exist, so if you don't want to pair via bluetooth: delete this file.  
+NOTE: Bluetooth pan will not be started if this file doesn't exist, so if you don't want to pair via bluetooth: delete this file.  
+
+#### Read Pi-Tail.README and Pi-Tail.HOWTO for more details
   
 #### To install the service:  
 
