@@ -2,6 +2,8 @@
 
 Raspberry Pi services to configure tethering.  
 
+![Pi-Tail](./Pi-Tail.jpg?raw=true "Optional Title")
+
 To be used with ethernet gadget mode to allow to image Sticky Fingers Kali-Pi and enable
 ethernet gadget mode by editing the following two files in the /boot partition:  
 **_cmdline.txt_**: Add “modules-load=dwc2,g_ether” after “rootwait”  
