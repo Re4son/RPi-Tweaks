@@ -17,4 +17,5 @@ TIPS:
              - Wifi tethering for smartphone or tablet connections (Use an external dongle for wifi attacks)
              - USB tethering for PC or Laptop connections (or use a battery for smartphone connection)
              
-             - Bluetooth doesn't play nice with wifi attacks so don't even bother
+             - Bluetooth and WiFi don't play nicely together without top notch power supply.
+               Smartphone power can cause brownouts when using both together.
