@@ -19,19 +19,16 @@ iface mobile-1 inet static
     address 192.168.43.254
     netmask 255.255.255.0
     gateway 192.168.43.1
-    dns-nameservers 9.9.9.9 8.8.8.8
 
 iface mobile-2 inet static
     address 192.168.43.254
     netmask 255.255.255.0
     gateway 192.168.43.1
-    dns-nameservers 9.9.9.9 8.8.8.8
 
 iface sepultura inet static
     address 192.168.43.254
     netmask 255.255.255.0
     gateway 192.168.43.1
-    dns-nameservers 9.9.9.9 8.8.8.8
 
 # Android defaults
 allow-hotplug usb0
@@ -39,7 +36,6 @@ iface usb0 inet static
     address 192.168.42.254
     netmask 255.255.255.0
     gateway 192.168.42.129
-    dns-nameservers 9.9.9.9 8.8.8.8
 
 # PC
 allow-hotplug usb9
@@ -47,7 +43,6 @@ iface usb9 inet static
     address 192.168.44.254
     netmask 255.255.255.0
     gateway 192.168.44.1
-    dns-nameservers 9.9.9.9 8.8.8.8
 
 auto eth0
 iface eth0 inet dhcp
