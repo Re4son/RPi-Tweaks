@@ -54,5 +54,4 @@ NOTE: Bluetooth pan will not be started if this file doesn't exist, so if you do
 *wget -O /usr/local/bin/setgw https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/setgw*  
 *wget -O /etc/dhcp/dhclient-enter-hooks.d/nodnsupdate https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/nodnsupdate*  
 *chmod 755 /usr/local/bin/mon0up /usr/local/bin/mon0down /usr/local/bin/setgw /etc/dhcp/dhclient-enter-hooks.d/nodnsupdate*  
-*systemctl enable pi-tail.service && systemctl enable pi-tailbt.service && systemctl enable pi-tailms.service && systemctl enable pi-tailap.service && systemctl enable systemd-networkd && systemctl enable bt-agent && systemctl enable bt-network
-*  
+*systemctl enable pi-tail.service && systemctl enable pi-tailbt.service && systemctl enable pi-tailms.service && systemctl enable pi-tailap.service && systemctl enable systemd-networkd && systemctl enable bt-agent && systemctl enable bt-network*    
