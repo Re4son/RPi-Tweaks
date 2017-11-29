@@ -39,6 +39,11 @@ HOWTO put wlan0 into monitor mode:
 
 HOWTO use different modes:
 
+Tip:  Having several interfaces active might upset the default gateway settings. If, after connecting, you cannot access the
+      Internet, try running:
+                             setgw
+      That shoud fix it.
+
 1.    USB mass storage:
                        Access /boot/ from any device as if Pi-Tail was a USB stick:
                        Plug USB cable into USB port (not power port) of Pi-Tail and connect to your device (PC/Phone/...)
@@ -54,6 +59,7 @@ HOWTO use different modes:
                          SSID:      sepultura
                          Password:  R4t4m4h4tt4
                        Plug USB cable into power port of Pi-Tail and connect to your device (PC/Phone/...)
+                       
 
 3.    Bluetooth tethering:
                        You can pair with Pi-Tail within 3 minutes of booting.
