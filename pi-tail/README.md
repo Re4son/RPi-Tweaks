@@ -24,7 +24,7 @@ NOTE: Bluetooth pan will not be started if this file doesn't exist, so if you do
 #### Read Pi-Tail.README and Pi-Tail.HOWTO for more details
   
 #### To install Pi-Tail:  
-*wget -O /usr/local/bin/install.pi-tail https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/install.pi-tail* 
+*wget -O /usr/local/bin/install.pi-tail https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/install.pi-tail*  
 *chmod 755 /usr/local/bin/install.pi-tail*  
 */usr/local/bin/install.pi-tail*  
 
