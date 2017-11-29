@@ -139,12 +139,12 @@ do
             exit 0
             ;;
         -u)
-            check_root()
+            check_root
             install
             exit 0
             ;;
         -i)
-            check_root()
+            check_root
             update_installer
             exit 0
             ;;
@@ -152,7 +152,7 @@ do
 done
 
 
-check_root()
+check_root
 install
 
 if ask "Reboot to apply changes?" "Y"; then
