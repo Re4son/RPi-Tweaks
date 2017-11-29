@@ -45,8 +45,14 @@ NOTE: Bluetooth pan will not be started if this file doesn't exist, so if you do
 *wget -O /boot/Pi-Tail.HOWTO https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/Pi-Tail.HOWTO*  
 *wget -O /boot/config.txt https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/config.txt*  
 *wget -O /etc/udev/rules.d/70-persistent-net.rules https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/70-persistent-net.rules*  
+*wget -O /etc/resolv.conf https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/resolv.conf*  
 *wget -O /opt/Kali-Pi/Menus/RAS-AP/dnsmasq-dhcpd.conf https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/dnsmasq-dhcpd.conf*  
 *wget -O /opt/Kali-Pi/Menus/RAS-AP/ras-ap.sh https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/ras-ap.sh*  
 *wget -O /opt/Kali-Pi/Menus/RAS-AP/ras-ap.conf https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/ras-ap.conf*  
+*wget -O /usr/local/bin/mon0up https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/mon0up*  
+*wget -O /usr/local/bin/mon0down https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/mon0down*  
+*wget -O /usr/local/bin/setgw https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/setgw*  
+*wget -O /etc/dhcp/dhclient-enter-hooks.d/nodnsupdate https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/nodnsupdate*  
+*chmod 755 /usr/local/bin/mon0up /usr/local/bin/mon0down /usr/local/bin/setgw /etc/dhcp/dhclient-enter-hooks.d/nodnsupdate*  
 *systemctl enable pi-tail.service && systemctl enable pi-tailbt.service && systemctl enable pi-tailms.service && systemctl enable pi-tailap.service && systemctl enable systemd-networkd && systemctl enable bt-agent && systemctl enable bt-network
 *  
