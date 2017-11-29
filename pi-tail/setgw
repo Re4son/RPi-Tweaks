@@ -1,0 +1,4 @@
+gw=$(echo $SSH_CLIENT | cut -f1 -d " ")
+ip route del default
+ip route add default via $gw
+ip route
