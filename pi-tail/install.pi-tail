@@ -68,7 +68,7 @@ function exitonerr {
 function update_installer() {
     TEMP_FILE="/tmp/install.pi-tail"
     printf "\n\t*** Downloading update ***\n"
-    wget -O ${TEMP_FILE} https://github.com/Re4son/re4son-kernel-builder/raw/master/install.sh
+    wget -O ${TEMP_FILE} https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/install.pi-tail
     cp -f $TEMP_FILE /usr/local/bin/$PROG_NAME
     chmod +x /usr/local/bin/$PROG_NAME
     rm -f $TEMP_FILE
