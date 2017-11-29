@@ -3,7 +3,7 @@
 
 PROG_NAME="$(basename $0)"
 ARGS="$@"
-VERSION="4.9-1.1.1"
+VERSION="4.9-1.1.2"
 
 
 function print_version() {
@@ -117,7 +117,9 @@ function install() {
     wget -O /tmp/resolv.conf https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/resolv.conf
     cp -f /tmp/resolv.conf /etc/resolv.conf
     chmod 755 /usr/local/bin/mon0up /usr/local/bin/mon0down /usr/local/bin/setgw /etc/dhcp/dhclient-enter-hooks.d/nodnsupdate
+    printf "\t**** Enabling services ****\n\n"
     systemctl enable pi-tail.service && systemctl enable pi-tailbt.service && systemctl enable pi-tailms.service && systemctl enable pi-tailap.service && systemctl enable systemd-networkd && systemctl enable bt-agent && systemctl enable bt-network
+    printf "\t**** Installation completed ****\n\n"
 }
 
 ############
