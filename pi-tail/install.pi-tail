@@ -3,6 +3,9 @@
 
 PROG_NAME="$(basename $0)"
 ARGS="$@"
+VERSION="4.9-1.1.1"
+
+
 function print_version() {
     printf "\tPi-Tail Installer: $PROG_NAME $VERSION\n\n"
     exit 0
