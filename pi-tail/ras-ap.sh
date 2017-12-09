@@ -16,9 +16,9 @@ start() {
         echo "   START Remote Access WiFi AP"
         echo "--------------------------------"
 
-
+        sleep 2
         if [ -f /usr/bin/nexutil ]; then
-            /usr/local/bin/mon0up
+            sleep 2; /usr/local/bin/mon0up
         fi
         if [ -f /var/lib/misc/dnsmasq.leases ]; then
             rm /var/lib/misc/dnsmasq.leases
