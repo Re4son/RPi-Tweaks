@@ -18,9 +18,7 @@ start() {
 
 
         if [ -f /usr/bin/nexutil ]; then
-            cd /usr/local/src/re4son-kernel_4*/
-            ./install.sh -p
-            cd -
+            /usr/local/bin/mon0up
         fi
         if [ -f /var/lib/misc/dnsmasq.leases ]; then
             rm /var/lib/misc/dnsmasq.leases
@@ -66,7 +64,9 @@ stop() {
         pkill hostapd
         pkill python
         ip addr del 192.168.40.1/24 dev $phy
-
+        if [ -f /usr/bin/nexutil ]; then
+            /usr/local/bin/mon0down
+        fi
 }
 
 case "$1" in
