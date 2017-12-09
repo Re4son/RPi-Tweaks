@@ -3,7 +3,7 @@
 
 PROG_NAME="$(basename $0)"
 ARGS="$@"
-VERSION="4.9-1.1.2"
+VERSION="4.9-1.2.0"
 
 
 function print_version() {
@@ -16,7 +16,7 @@ function print_help() {
     printf "\t\t\t   (No option)\tInstall Pi-Tail\n"
     printf "\t\t\t\t-h\tPrint this help\n"
     printf "\t\t\t\t-v\tPrint version of this installer\n"
-    printf "\t\t\t\t-u\tUpdate Pi-Tail\n\n"
+    printf "\t\t\t\t-u\tUpgrade Pi-Tail to its latest version\n\n"
     printf "\t\t\t\t-i\tUpdate this installer\n\n"
     exit 1
 }
@@ -87,6 +87,7 @@ function check_root() {
 }
 
 function install() {
+    printf "\t**** Installing Pi-Tail ****\n\n"
     wget -O /etc/systemd/system/pi-tail.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tail.service
     wget -O /etc/systemd/system/pi-tailbt.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tailbt.service
     wget -O /etc/systemd/system/pi-tailms.service https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/pi-tailms.service
@@ -122,6 +123,14 @@ function install() {
     printf "\t**** Installation completed ****\n\n"
 }
 
+function upgrade() {
+    printf "\t**** Upgrading Pi-Tail ****\n\n"
+    wget -O /boot/Pi-Tail.HOWTO https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/Pi-Tail.HOWTO
+    wget -O /opt/Kali-Pi/Menus/RAS-AP/ras-ap.sh https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/pi-tail/ras-ap.sh
+    chmod 755 /opt/Kali-Pi/Menus/RAS-AP/ras-ap.sh
+    printf "\t**** Upgrade completed ****\n\n"
+}
+
 ############
 ##        ##
 ##  MAIN  ##
@@ -145,7 +154,7 @@ do
             ;;
         -u)
             check_root
-            install
+            upgrade
             exit 0
             ;;
         -i)
