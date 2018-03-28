@@ -1,6 +1,6 @@
 # kalipi-config
   
-A Kali Linux version of the raspi-config tool.
+A Kali Linux version of the raspi-config tool.  
 !!Warning: Work in progress - very early stage. Resize partition works well. Use the rest with caution.  
 
 ## Installation:
