@@ -12,7 +12,7 @@ BLACKLIST=/etc/modprobe.d/kalipi-blacklist.conf
 CONFIG=/boot/config.txt
 PROG_NAME="$0"
 ARGS="$@"
-VERSION="4.9-1.1.2"
+VERSION="4.9-1.1.3"
 
 info() {
     system="$1"
@@ -1522,7 +1522,9 @@ do_wifi_ssid_passphrase() {
     fi
     return 1
   fi
-
+  
+  sed /etc/dhcp/dhclient.conf -i -e "s/^\(#\|\)timeout .*;/timeout 10;/"
+  
   nm_status=$(/bin/systemctl status network-manager)
   if [[ $nm_status = *"is running"* ]] || [[ $nm_status = *"active (running)"* ]]; then
     systemctl stop network-manager && systemctl disable network-manager
@@ -1563,9 +1565,9 @@ EOF
   fi
 
   if [ "$RESTART_IF" -eq 1 ]; then
-    sed /etc/dhcp/dhclient.conf -i -e "s/^\(#\|\)timeout .*;/timeout 2;/"
-    ifdown $IFACE && ifup $IFACE
-    sed /etc/dhcp/dhclient.conf -i -e "s/^\(#\|\)timeout .*;/timeout 10;/"
+    ifdown $IFACE
+    sleep 2
+    ifup $IFACE
   fi
 
   if ! wpa_cli -i "$IFACE" status > /dev/null 2>&1; then
@@ -1652,7 +1654,9 @@ EOF
     wpa_cli -i "$IFACE" reconfigure > /dev/null 2>&1
   done
   
-  ifdown $IFACE && ifup $IFACE
+  ifdown $IFACE
+  sleep 2
+  ifup $IFACE
 
   return $RET
 }
