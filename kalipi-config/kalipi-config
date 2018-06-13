@@ -12,7 +12,7 @@ BLACKLIST=/etc/modprobe.d/kalipi-blacklist.conf
 CONFIG=/boot/config.txt
 PROG_NAME="$0"
 ARGS="$@"
-VERSION="4.9-1.1.1"
+VERSION="4.9-1.1.2"
 
 info() {
     system="$1"
@@ -1563,7 +1563,9 @@ EOF
   fi
 
   if [ "$RESTART_IF" -eq 1 ]; then
+    sed /etc/dhcp/dhclient.conf -i -e "s/^\(#\|\)timeout .*;/timeout 2;/"
     ifdown $IFACE && ifup $IFACE
+    sed /etc/dhcp/dhclient.conf -i -e "s/^\(#\|\)timeout .*;/timeout 10;/"
   fi
 
   if ! wpa_cli -i "$IFACE" status > /dev/null 2>&1; then
@@ -1650,9 +1652,7 @@ EOF
     wpa_cli -i "$IFACE" reconfigure > /dev/null 2>&1
   done
   
-  if [ "$RESTART_IF" -eq 1 ]; then
-    ifdown $IFACE && ifup $IFACE
-  fi
+  ifdown $IFACE && ifup $IFACE
 
   return $RET
 }
