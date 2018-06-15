@@ -12,7 +12,7 @@ BLACKLIST=/etc/modprobe.d/kalipi-blacklist.conf
 CONFIG=/boot/config.txt
 PROG_NAME="$0"
 ARGS="$@"
-VERSION="4.9-1.2.0"
+VERSION="4.9-1.2.1"
 
 info() {
     system="$1"
@@ -972,6 +972,10 @@ get_autologin() {
 do_boot_behaviour() {
   OVERWRITE="/etc/systemd/system/getty@tty1.service.d/override.conf"
   P=$(dirname "${OVERWRITE}")
+  ## Remove autologin if previously set
+  if [ -f ${OVERWRITE} ]; then
+        rm -f ${OVERWRITE}
+  fi
   if [ "$INTERACTIVE" = True ]; then
     BOOTOPT=$(whiptail --title "Kali-Pi Software Configuration Tool (kalipi-config)" --menu "Boot Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT \
       "B1 Console" "Text console, requiring user to login" \
