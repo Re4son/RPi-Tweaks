@@ -12,7 +12,7 @@ BLACKLIST=/etc/modprobe.d/kalipi-blacklist.conf
 CONFIG=/boot/config.txt
 PROG_NAME="$0"
 ARGS="$@"
-VERSION="4.9-1.4.0"
+VERSION="4.9-1.4.1"
 
 info() {
     system="$1"
@@ -25,7 +25,7 @@ info() {
 
 is_pi () {
   ARCH=$(dpkg --print-architecture)
-  if [ "$ARCH" = "armhf" ] ; then
+  if [ "$ARCH" = "armhf" ] || [ "$ARCH" = "armel" ]; then
     return 0
   else
     return 1
@@ -1987,7 +1987,7 @@ if [ "$INTERACTIVE" = True ]; then
   while true; do
     if is_pi ; then
       FUN=$(whiptail --title "Kali-Pi Software Configuration Tool (kalipi-config)" --backtitle "$(cat /proc/device-tree/model| tr -d '\0')" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
-        "1 Change User Password" "Change password for the current user" \
+        "1 Change User Password" "Change password for any user" \
         "2 Network Options" "Configure network settings" \
         "3 Boot Options" "Configure options for start-up" \
         "4 Localisation Options" "Set up language and regional settings to match your location" \
