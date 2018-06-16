@@ -12,7 +12,7 @@ BLACKLIST=/etc/modprobe.d/kalipi-blacklist.conf
 CONFIG=/boot/config.txt
 PROG_NAME="$0"
 ARGS="$@"
-VERSION="4.9-1.2.1"
+VERSION="4.9-1.3.0"
 
 info() {
     system="$1"
@@ -422,8 +422,16 @@ do_pixdub() {
 }
 
 do_change_pass() {
-  whiptail --msgbox "You will now be asked to enter a new password for the $SUDO_USER user" 20 60 1
-  passwd $SUDO_USER &&
+  AVAIL_USERS=$(awk -F'[/:]' '{if (($3 >= 1000 && $3 != 65534) || $3 == 0) print $1}' /etc/passwd)
+  whiptail --msgbox "Users on this system (Tip: use copy and paste):\n\n$AVAIL_SSID" 20 90
+  USER=$(whiptail --inputbox "Please enter the username to change the poassword of\n(leave empty for $SUDO_USER):" 20 60 3>&1 1>&2 2>&3)
+  if [ $? -ne 0 ]; then
+          return 0
+  elif [ -z "$USER" ]; then
+	  USER=$SUDO_USER
+  fi
+  whiptail --msgbox "You will now be asked to enter a new password for user \"$USER\" 20 60 1
+  passwd $USER &&
   whiptail --msgbox "Password changed successfully" 20 60 1
 }
 
@@ -1586,7 +1594,7 @@ EOF
   fi
 
   AVAIL_SSID=$(/sbin/iw wlan0 scan|grep SSID)
-  whiptail --msgbox "Available WiFi Networks (Tip: use copy and paste):\n\n$AVAIL_SSID" 30 90
+  whiptail --msgbox "Available WiFi Networks (Tip: use copy and paste):\n\n$AVAIL_SSID" 20 90
 
   SSID="$1"
   while [ -z "$SSID" ] && [ "$INTERACTIVE" = True ]; do
