@@ -18,38 +18,28 @@ function print_version() {
 }
 
 
-function check_update() {
-    if [[ $EUID -ne 0 ]]; then
-        bail "re4son-pi-tft-setup must be run as root. try: sudo re4son-pi-tft-setup"
+function do_update() {
+    if [ ! "$INTERACTIVE" = True ]; then
+        if [[ $EUID -ne 0 ]]; then
+            bail "re4son-pi-tft-setup must be run as root. try: sudo re4son-pi-tft-setup"
+        fi
     fi
-    TEMP_FILE="/tmp/re4son-pi-tft-setup"
+    TEMP_FILE="/tmp/${BASE_NAME}"
     info UPDATE "Downloading update"
-    wget -O ${TEMP_FILE} https://github.com/Re4son/Re4son-Pi-TFT-Setup/raw/rpts-4.14/kalipi-tft-config
+    wget -O ${TEMP_FILE} https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/kalipi-tft-config/kalipi-tft-config
     cp $TEMP_FILE $PROG_NAME
     chmod +x $PROG_NAME
     rm -f $TEMP_FILE
     info UPDATE "Replaced old version:"
-    echo "Re4son Pi-TFT Setup $VERSION"
-    echo
-    info UPDATE "With new version:"
-    source "$PROG_NAME" -v
-    exit 0
-}
-
-do_update() {
-    TEMP_FILE="/tmp/kalipi-tft-config"
-    info UPDATE "Downloading update"
-    wget -O ${TEMP_FILE} https://github.com/Re4son/Re4son-Pi-TFT-Setup/raw/rpts-4.14/kalipi-tft-config
-    cp $TEMP_FILE $PROG_NAME
-    chmod +x $PROG_NAME
-    rm -f $TEMP_FILE
-    info UPDATE "Replaced old version:"
-    echo "kalipi-tft-config Setup $VERSION"
+    echo "${BASE_NAME} $VERSION"
     echo
     info UPDATE "With new version:"
     "$PROG_NAME" --version
-    sleep 2 &&
-    exec "$PROG_NAME"
+    if [ "$INTERACTIVE" = True ]; then
+        sleep 2 &&
+        exec "$PROG_NAME"
+    fi
+    exit 0
 }
 
 function remove_tft() {
@@ -3058,7 +3048,7 @@ do
             print_version
             ;;
         -u)
-            check_update
+            do_update
             ;;
         -r)
             removetft="YES"
@@ -3153,6 +3143,7 @@ case "${pitfttype}" in
                 do_install_oso35
                 ;; 
 	pi70)
+		ROTATION=180
 		do_install_pi70
 		;;
 	sain32)
