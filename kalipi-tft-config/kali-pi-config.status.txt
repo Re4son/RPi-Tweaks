@@ -3,9 +3,9 @@
 |--------------------|------------|-----------|----------|----------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------|
 |    4D-Systems      | 4dpi       |     X     |     -    |     -    |    -    |    X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |    X    |    -    |
 |     Adafruit       | 22         |     X     |     X    |     X    |    X    |    X    |    X    |    NA   |    NA   |    NA   |    NA   |    NA   |    NA   |    NA   |    NA   |
-|     Adafruit       | 28r        |     X     |     -    |     X    |    X    |    X    |    X    |    -    |    X    |    -    |    -    |    X    |    X    |    X    |    X    |
-|     Adafruit       | 28c        |     X     |     X    |     X    |    X    |    X    |    X    |    -    |    X    |    -    |    -    |    X    |    X    |    X    |    X    |
-|     Adafruit       | 35r        |     X     |     -    |     X    |    X    |    X    |    X    |    -    |    -    |    -    |    X    |    X    |    X    |    X    |    X    |
+|     Adafruit       | 28r        |     X     |     -    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    -    |    X    |    -    |    -    |
+|     Adafruit       | 28c        |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    -    |    X    |    -    |    -    |
+|     Adafruit       | 35r        |     X     |     -    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    -    |    -    |    -    |    X    |
 |    Elecfreak       | elec22     |     X     |     -    |     X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |
 |    Elecrow         | ecrow35    |     X     |     -    |     X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |
 |      JBTek         | jb35       |     X     |     -    |     X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |
