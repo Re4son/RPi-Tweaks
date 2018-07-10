@@ -1,7 +1,7 @@
 # kalipi-tft-config
   
 A tool to setup touchscreens on Raspberry Pi running  Kali Linux.  
-![kalipi-config](https://re4son-kernel.com/wp-content/uploads/kalipi-config.png)
+![kalipi-config](https://re4son-kernel.com/wp-content/uploads/kalipi-tft-config1.png)
   
 
 ## Installation:  
@@ -11,3 +11,4 @@ chmod 755 /usr/local/bin/kalipi-tft-config
 
 ## Usage:  
 sudo kalipi-tft-config
+![kalipi-config](https://re4son-kernel.com/wp-content/uploads/kalipi-tft-config2.png)
