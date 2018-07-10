@@ -10,15 +10,15 @@
 |    Elecrow         | ecrow35    |     X     |     X    |     X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |
 |      JBTek         | jb35       |     X     |     -    |     X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |
 |     Hotmcu         | hy28b      |     X     |     -    |     -    |    X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |    X    |    -    |    -    |
-|      KeDei         | kedei35    |     X     |     -    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
-|      Kuman         | kum35      |     X     |     -    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
+|      KeDei         | kedei35    |     X     |     X    |     X    |    X    |    X    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |
+|      Kuman         | kum35      |     X     |     X    |     X    |    X    |    X    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |
 |  Raspberry Pi      | pi70       |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    -    |    X    |    -    |
-|     Osoyoo         | oso35      |     X     |     -    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
+|     Osoyoo         | oso35      |     X     |     X    |     X    |    X    |    X    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |
 |    Sainsmart       | sain32     |     X     |     -    |     X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |
-|    Sainsmart       | sain35     |     X     |     -    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
+|    Sainsmart       | sain35     |     X     |     X    |     X    |    X    |    X    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |
 |    Waveshare       | wave32     |     X     |     -    |     -    |    -    |    -    |    X    |    -    |    -    |    -    |    X    |    -    |    -    |    -    |    X    |
-|    Waveshare       | wave35     |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
-|    Waveshare       | wave35b    |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
+|    Waveshare       | wave35     |     X     |     X    |     X    |    X    |    X    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |
+|    Waveshare       | wave35b    |     X     |     X    |     X    |    X    |    X    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |
 |    Waveshare       | wave35h    |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    -    |    -    |    -    |
 |    Waveshare       | wave40     |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    -    |    -    |    -    |
 |    Waveshare       | wave50     |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    -    |    -    |    -    |
