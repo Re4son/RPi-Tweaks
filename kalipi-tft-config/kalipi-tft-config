@@ -3,7 +3,7 @@
 PROG_NAME="$0"
 BASE_NAME=$(basename $PROG_NAME)
 ARGS="$@"
-VERSION="4.14-0.0.2"
+VERSION="4.14-0.0.3"
 INTERACTIVE=True
 CONFIG=/boot/config.txt
 CMDLINE=/boot/cmdline.txt
@@ -182,6 +182,84 @@ function ask() {
     done
 }
 
+function check_bin(){
+    BIN_PATH=$(which $1)
+    if [ "" = "$BIN_PATH" ]; then
+        echo 0
+    else
+        echo 1
+    fi
+}
+
+function check_pkg(){
+    PKG_STATUS=$(dpkg-query -W --showformat='${Status}\n' $1|grep "install ok installed")
+    if [ "" = "$PKG_STATUS" ]; then
+        echo 0
+    else
+        echo 1
+    fi
+}
+
+function check_dependencies() {
+    local PROGRAMS=("whiptail")
+    local PACKAGES=("whiptail")
+    local missingprogs=""
+    local missingpkgs=""
+    for i in "${!PROGRAMS[@]}"; do
+        if [ $(check_bin ${PROGRAMS[$i]}) -eq 0 ]; then
+            missingpkgs="${missingpkgs}${PACKAGES[$i]} "
+        fi
+    done
+    if [ "" != "$missingpkgs" ]; then
+        printf "\nThe following packages are missing:         $missingpkgs\n"
+        printf "Please install them before continuing, i.e.:\n"
+        printf "\nsudo apt install $missingpkgs\n\n"
+        exit 1
+    fi
+
+    if grep -q boot /proc/mounts; then
+        :
+    else
+	mount /dev/mmcblk0p1 /boot
+        if grep -q boot /proc/mounts; then
+            :
+        else
+            whiptail --msgbox "\
+Error: Cannot mount /boot.
+
+If you're sure it is mounted, proceed - otherwise quit here and try:
+
+sudo mount /dev/mmcblk0p1 /boot
+" 20 70 1
+        fi
+    fi
+}
+
+function calc_wt_size() {
+    # NOTE: it's tempting to redirect stderr to /dev/null, so supress error 
+    # output from tput. However in this case, tput detects neither stdout or 
+    # stderr is a tty and so only gives default 80, 24 values
+    WT_HEIGHT=17
+    WT_WIDTH=$(tput cols)
+
+    if [ -z "$WT_WIDTH" ] || [ "$WT_WIDTH" -lt 100 ]; then
+        WT_WIDTH=90
+    elif [ "$WT_WIDTH" -gt 178 ]; then
+        WT_WIDTH=120
+    else
+        WT_WIDTH=$((WT_WIDTH-10))
+    fi
+    WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
+}
+
+function do_about() {
+    whiptail --msgbox "\
+kalipi-tft-config version $VERSION
+
+This tool provides a straight-forward way of setting
+up various TFT screens for the Kali-Pi.
+" 20 70 1
+}
 function install_xserver-xorg-input-evdev {
 ## Debian releases after early 2017 break touch input - this will fix it
     info PI-TFT "Checking for xserver-xorg-input-evdev:"
@@ -213,7 +291,7 @@ EOF
 function update_fbturbo_conf() {
     local fbturbo_path="/usr/share/X11/xorg.conf.d/99-fbturbo.conf"
     if [ -e $fbturbo_path ]; then
-        echo "Moving ${fbturbo_path} to ${TARGET_HOMEDIR}"
+        info PI-TFT "Moving ${fbturbo_path} to ${TARGET_HOMEDIR}"
         mv "$fbturbo_path" "$TARGET_HOMEDIR"
     fi
 }
@@ -260,6 +338,46 @@ function ask_console() {
         fi
     else 
         install_console || bail "Unable to configure console"
+    fi
+}
+
+function do_install_onoffbutton() {
+    info PI-TFT  "Adding rpi_power_switch to /etc/modules"
+    if [ "$INTERACTIVE" = True ]; then
+        whiptail --yesno "Would you like GPIO #27 to act as a on/off button?" 20 60 2
+        if [ $? -ne 0 ]; then 
+            return 0 
+        fi
+    else
+        if ask "Would you like GPIO #27 to act as a on/off button?"; then
+            :
+        else
+            return 0
+        fi
+    fi
+    if grep -xq "rpi_power_switch" "${chr}/etc/modules"; then
+        info PI-TFT "Already had rpi_power_switch"
+    else
+        info PI-TFT "Adding rpi_power_switch"
+        date=`date`
+        cat >> /etc/modules <<EOF
+# --- added by re4son-pi-tft-setup $date ---
+rpi_power_switch
+# --- end re4son-pi-tft-setup $date ---
+EOF
+    fi
+
+    info PI-TFT "Adding rpi_power_switch config to /etc/modprobe.d/re4son.conf"
+    if grep -xq "options rpi_power_switch gpio_pin=27 mode=0" "${chr}/etc/modprobe.d/re4son.conf"; then
+        info PI-TFT "Already had rpi_power_switch config"
+    else
+        info PI-TFT "Adding rpi_power_switch"
+        date=`date`
+        cat >> /etc/modprobe.d/re4son.conf <<EOF
+# --- added by re4son-pi-tft-setup $date ---
+options rpi_power_switch gpio_pin=27 mode=0
+# --- end re4son-pi-tft-setup $date ---
+EOF
     fi
 }
 
@@ -332,6 +450,9 @@ EOF
     # resolve dependencies
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
+
+    # Install on/off button
+    do_install_onoffbutton
 
     # success
     do_setup_success
@@ -464,6 +585,9 @@ EOF
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
 
+    # Install on/off button
+    do_install_onoffbutton
+
     # success
     do_setup_success
 
@@ -590,6 +714,9 @@ EOF
     # resolve dependencies
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
+
+    # Install on/off button
+    do_install_onoffbutton
 
     # success
     do_setup_success
@@ -939,7 +1066,7 @@ Section "InputClass"
         Identifier "calibration"
         MatchProduct "ADS7846 Touchscreen"
         Option "SwapAxes" "1"
-        Option "Calibration" "3933 227 241 3893"
+        Option "Calibration" "3932 300 3801 294"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -950,8 +1077,8 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3932 300 3801 294"
-        Option  "SwapAxes"      "0"
+        Option  "Calibration"   "3933 227 241 3893"
+        Option  "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -962,7 +1089,7 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 3801 294"
+        Option  "Calibration"   "300 3932 294 3801"
         Option  "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
@@ -974,8 +1101,9 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 294 3801"
-        Option  "SwapAxes"      "0"
+        Option  "Calibration"   "3933 227 241 3893"
+        Option  "SwapAxes"      "1"
+        Option "InvertY"       "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -1225,7 +1353,7 @@ EOF
     
 }
 
-function do_install_keidei35() {
+function do_install_kedei35() {
     # set framebuffer
     FRAMEBUFFER="/dev/fb1"
 
@@ -1261,7 +1389,7 @@ Section "InputClass"
         Identifier "calibration"
         MatchProduct "ADS7846 Touchscreen"
         Option "SwapAxes" "1"
-        Option "Calibration" "3933 227 241 3893"
+        Option "Calibration" "3932 300 3801 294"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -1272,8 +1400,8 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3932 300 3801 294"
-        Option  "SwapAxes"      "0"
+        Option  "Calibration"   "3933 227 241 3893"
+        Option  "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -1284,7 +1412,7 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 3801 294"
+        Option  "Calibration"   "300 3932 294 3801"
         Option  "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
@@ -1296,141 +1424,9 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 294 3801"
-        Option  "SwapAxes"      "0"
-        Option "EmulateThirdButton" "1"
-        Option "EmulateThirdButtonTimeout" "1000"
-        Option "EmulateThirdButtonMoveThreshold" "300"
-EndSection
-EOF
-    fi
-
-    # moving /usr/share/X11/xorg.conf.d/99-fbturbo.conf
-    info PI-TFT "Removing X11 fbturbo.conf..."
-    update_fbturbo_conf
-
-    # update ~/.profile
-    info PI-TFT "Updating user profile..."
-    update_profile
-
-    # update /etc/pointercal
-    info PI-TFT "Updating TSLib default calibration..."
-    if [ "$ROTATION" = 0 ]; then
-        pointercal="8 -8432 32432138 5699 -112 -965922 65536"
-    elif [ "$ROTATION" = 90 ]; then
-        pointercal="8 -8432 32432138 5699 -112 -965922 65536"
-    elif [ "$ROTATION" = 180 ]; then
-        pointercal="8 -8432 32432138 5699 -112 -965922 65536"
-    elif [ "$ROTATION" = 270 ]; then
-        pointercal="-36 8394 -1871700 -5554 -26 21789796 65536 480 320"
-    fi
-    cat > /etc/pointercal <<EOF
-$pointercal
-EOF
-
-    # update /etc/udev/rules.d/95-xxxxx.rules
-    info PI-TFT "Updating udev rules for Touchscreen..."
-    cat > /etc/udev/rules.d/95-ADS7846.rules <<EOF
-SUBSYSTEM=="input", ATTRS{name}=="ADS7846 Touchscreen", ENV{DEVNAME}=="*event*", SYMLINK+="input/touchscreen"
-EOF
-
-    # update /etc/modules
-    info PI-TFT "Updating /etc/modules..."
-
-    # update /boot/cmdline.txt
-    info PI-TFT "Updating console to TFT..."
-    ask_console
-
-    # resolve dependencies
-    info PI-TFT "Resolving dependencies..."
-    install_xserver-xorg-input-evdev
-
-    # success
-    do_setup_success
-
-    # reboot?
-    do_reboot
-
-    # Otherwise exit if not interactive
-    if [ ! "$INTERACTIVE" = True ]; then
-        exit 0
-    fi
-    
-}
-
-function do_install_keidei35() {
-    # set framebuffer
-    FRAMEBUFFER="/dev/fb1"
-
-    # update /boot/config.txt
-    info PI-TFT "Updating /boot/config.txt..."
-    date=`date`
-    overlay="dtoverlay=waveshare35a:rotate=${ROTATION}"
-    cat >> /boot/config.txt <<EOF
-# --- added by re4son-pi-tft-setup $date ---
-dtparam=spi=on
-dtparam=i2c1=on
-dtparam=i2c_arm=on
-$overlay
-###########################################
-####  Overclocking the micro sdcard    ####
-#### Uncomment  84 for Raspberry Pi 2  ####
-# dtparam=sd_overclock=84
-#### Uncomment 100 for Raspberry Pi 3  ####
-# dtparam=sd_overclock=100
-###########################################
-# --- end re4son-pi-tft-setup $date ---
-EOF
-
-    # update /etc/X11/xorg.conf.d
-    info PI-TFT "Updating X11 configuration..."
-    update_xorg_conf
-
-    # update /etc/X11/xorg.conf.d/99-calibration.conf
-    info PI-TFT "Updating X11 default calibration..."
-    if [ "$ROTATION" = 0 ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier "calibration"
-        MatchProduct "ADS7846 Touchscreen"
-        Option "SwapAxes" "1"
-        Option "Calibration" "3933 227 241 3893"
-        Option "EmulateThirdButton" "1"
-        Option "EmulateThirdButtonTimeout" "1000"
-        Option "EmulateThirdButtonMoveThreshold" "300"
-EndSection
-EOF
-    elif [ "$ROTATION" = 90 ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier      "calibration"
-        MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3932 300 3801 294"
-        Option  "SwapAxes"      "0"
-        Option "EmulateThirdButton" "1"
-        Option "EmulateThirdButtonTimeout" "1000"
-        Option "EmulateThirdButtonMoveThreshold" "300"
-EndSection
-EOF
-    elif [ "$ROTATION" = 180 ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier      "calibration"
-        MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 3801 294"
+        Option  "Calibration"   "227 3933 241 3893"
         Option  "SwapAxes"      "1"
-        Option "EmulateThirdButton" "1"
-        Option "EmulateThirdButtonTimeout" "1000"
-        Option "EmulateThirdButtonMoveThreshold" "300"
-EndSection
-EOF
-    elif [ "$ROTATION" = 270 ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier      "calibration"
-        MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 294 3801"
-        Option  "SwapAxes"      "0"
+        Option "InvertY"       "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -1527,7 +1523,7 @@ Section "InputClass"
         Identifier "calibration"
         MatchProduct "ADS7846 Touchscreen"
         Option "SwapAxes" "1"
-        Option "Calibration" "3933 227 241 3893"
+        Option "Calibration" "3932 300 294 3801"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -1538,8 +1534,8 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3932 300 3801 294"
-        Option  "SwapAxes"      "0"
+        Option  "Calibration"   "3933 227 241 3893"
+        Option  "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -1562,8 +1558,9 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 294 3801"
-        Option  "SwapAxes"      "0"
+        Option  "Calibration"   "227 3933 241 3893"
+        Option  "SwapAxes"      "1"
+        Option "InvertY"       "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -1660,7 +1657,7 @@ Section "InputClass"
         Identifier "calibration"
         MatchProduct "ADS7846 Touchscreen"
         Option "SwapAxes" "1"
-        Option "Calibration" "3933 227 241 3893"
+        Option "Calibration" "3932 300 3801 294"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -1671,8 +1668,8 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3932 300 3801 294"
-        Option  "SwapAxes"      "0"
+        Option  "Calibration"   "3933 227 241 3893"
+        Option  "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -1683,7 +1680,7 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 3801 294"
+        Option  "Calibration"   "300 3932 294 3801"
         Option  "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
@@ -1695,8 +1692,9 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 294 3801"
-        Option  "SwapAxes"      "0"
+        Option  "Calibration"   "227 3933 241 3893"
+        Option  "SwapAxes"      "1"
+        Option "InvertY"       "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -1942,7 +1940,7 @@ Section "InputClass"
         Identifier "calibration"
         MatchProduct "ADS7846 Touchscreen"
         Option "SwapAxes" "1"
-        Option "Calibration" "3933 227 241 3893"
+        Option "Calibration" "3932 300 3801 294"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -1953,8 +1951,8 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3932 300 3801 294"
-        Option  "SwapAxes"      "0"
+        Option  "Calibration"   "3933 227 241 3893"
+        Option  "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -1965,7 +1963,7 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 3801 294"
+        Option  "Calibration"   "300 3932 294 3801"
         Option  "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
@@ -1977,8 +1975,9 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 294 3801"
-        Option  "SwapAxes"      "0"
+        Option  "Calibration"   "227 3933 241 3893"
+        Option  "SwapAxes"      "1"
+        Option  "InvertY"       "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -2172,138 +2171,6 @@ EOF
     
 }
 
-function do_install_wave35b() {
-    # set framebuffer
-    FRAMEBUFFER="/dev/fb1"
-
-    # update /boot/config.txt
-    info PI-TFT "Updating /boot/config.txt..."
-    date=`date`
-    overlay="dtoverlay=waveshare35b:rotate=${ROTATION}"
-    cat >> /boot/config.txt <<EOF
-# --- added by re4son-pi-tft-setup $date ---
-dtparam=spi=on
-dtparam=i2c1=on
-dtparam=i2c_arm=on
-$overlay
-###########################################
-####  Overclocking the micro sdcard    ####
-#### Uncomment  84 for Raspberry Pi 2  ####
-# dtparam=sd_overclock=84
-#### Uncomment 100 for Raspberry Pi 3  ####
-# dtparam=sd_overclock=100
-###########################################
-# --- end re4son-pi-tft-setup $date ---
-EOF
-
-    # update /etc/X11/xorg.conf.d
-    info PI-TFT "Updating X11 configuration..."
-    update_xorg_conf
-
-    # update /etc/X11/xorg.conf.d/99-calibration.conf
-    info PI-TFT "Updating X11 default calibration..."
-    if [ "$ROTATION" = 0 ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier "calibration"
-        MatchProduct "ADS7846 Touchscreen"
-        Option "SwapAxes" "1"
-        Option "Calibration" "3933 227 241 3893"
-        Option "EmulateThirdButton" "1"
-        Option "EmulateThirdButtonTimeout" "1000"
-        Option "EmulateThirdButtonMoveThreshold" "300"
-EndSection
-EOF
-    elif [ "$ROTATION" = 90 ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier      "calibration"
-        MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3932 300 3801 294"
-        Option  "SwapAxes"      "0"
-        Option "EmulateThirdButton" "1"
-        Option "EmulateThirdButtonTimeout" "1000"
-        Option "EmulateThirdButtonMoveThreshold" "300"
-EndSection
-EOF
-    elif [ "$ROTATION" = 180 ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier      "calibration"
-        MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 3801 294"
-        Option  "SwapAxes"      "1"
-        Option "EmulateThirdButton" "1"
-        Option "EmulateThirdButtonTimeout" "1000"
-        Option "EmulateThirdButtonMoveThreshold" "300"
-EndSection
-EOF
-    elif [ "$ROTATION" = 270 ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier      "calibration"
-        MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 294 3801"
-        Option  "SwapAxes"      "0"
-        Option "EmulateThirdButton" "1"
-        Option "EmulateThirdButtonTimeout" "1000"
-        Option "EmulateThirdButtonMoveThreshold" "300"
-EndSection
-EOF
-    fi
-
-    # moving /usr/share/X11/xorg.conf.d/99-fbturbo.conf
-    info PI-TFT "Removing X11 fbturbo.conf..."
-    update_fbturbo_conf
-
-    # update ~/.profile
-    info PI-TFT "Updating user profile..."
-    update_profile
-
-    # update /etc/pointercal
-    info PI-TFT "Updating TSLib default calibration..."
-    if [ "$ROTATION" = 0 ]; then
-        pointercal="8 -8432 32432138 5699 -112 -965922 65536"
-    elif [ "$ROTATION" = 90 ]; then
-        pointercal="8 -8432 32432138 5699 -112 -965922 65536"
-    elif [ "$ROTATION" = 180 ]; then
-        pointercal="8 -8432 32432138 5699 -112 -965922 65536"
-    elif [ "$ROTATION" = 270 ]; then
-        pointercal="-36 8394 -1871700 -5554 -26 21789796 65536 480 320"
-    fi
-    cat > /etc/pointercal <<EOF
-$pointercal
-EOF
-
-    # update /etc/udev/rules.d/95-xxxxx.rules
-    info PI-TFT "Updating udev rules for Touchscreen..."
-    cat > /etc/udev/rules.d/95-ADS7846.rules <<EOF
-SUBSYSTEM=="input", ATTRS{name}=="ADS7846 Touchscreen", ENV{DEVNAME}=="*event*", SYMLINK+="input/touchscreen"
-EOF
-
-    # update /etc/modules
-    info PI-TFT "Updating /etc/modules..."
-
-    # update /boot/cmdline.txt
-    info PI-TFT "Updating console to TFT..."
-    ask_console
-
-    # resolve dependencies
-    info PI-TFT "Resolving dependencies..."
-    install_xserver-xorg-input-evdev
-
-    # success
-    do_setup_success
-
-    # reboot?
-    do_reboot
-
-    # Otherwise exit if not interactive
-    if [ ! "$INTERACTIVE" = True ]; then
-        exit 0
-    fi
-    
-}
 function do_install_wave35() {
     # set framebuffer
     FRAMEBUFFER="/dev/fb1"
@@ -2340,7 +2207,7 @@ Section "InputClass"
         Identifier "calibration"
         MatchProduct "ADS7846 Touchscreen"
         Option "SwapAxes" "1"
-        Option "Calibration" "3933 227 241 3893"
+        Option "Calibration" "3933 227 3893 241"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -2351,8 +2218,8 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3932 300 3801 294"
-        Option  "SwapAxes"      "0"
+        Option  "Calibration"   "3933 227 241 3893"
+        Option  "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -2363,7 +2230,7 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 3801 294"
+        Option  "Calibration"   "300 3932 294 3801"
         Option  "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
@@ -2375,8 +2242,9 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 294 3801"
-        Option  "SwapAxes"      "0"
+        Option "Calibration"   "227 3933 241 3893"
+        Option "SwapAxes"      "1"
+        Option "InvertY"       "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -2473,7 +2341,7 @@ Section "InputClass"
         Identifier "calibration"
         MatchProduct "ADS7846 Touchscreen"
         Option "SwapAxes" "1"
-        Option "Calibration" "3933 227 241 3893"
+        Option "Calibration" "3933 227 3893 241"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -2484,8 +2352,8 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3932 300 3801 294"
-        Option  "SwapAxes"      "0"
+        Option "Calibration"   "3933 227 241 3893"
+        Option "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -2496,8 +2364,8 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 3801 294"
-        Option  "SwapAxes"      "1"
+        Option "Calibration"   "300 3932  294 3801"
+        Option "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -2508,8 +2376,9 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 294 3801"
-        Option  "SwapAxes"      "0"
+        Option "Calibration"   "227 3933 241 3893"
+        Option "SwapAxes"      "1"
+        Option "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -2632,8 +2501,8 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3932 300 3801 294"
-        Option  "SwapAxes"      "0"
+        Option "Calibration"   "3932 300 3801 294"
+        Option "SwapAxes"      "0"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -2644,8 +2513,8 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 3801 294"
-        Option  "SwapAxes"      "1"
+        Option "Calibration"   "3933 227 241 3893"
+        Option "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -2656,8 +2525,9 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "300 3932 294 3801"
-        Option  "SwapAxes"      "0"
+        Option "Calibration"   "227 3933 241 3893"
+        Option "SwapAxes"      "1"
+        Option "InvertY"       "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -3003,439 +2873,11 @@ EOF
 ##                                                              ##
 ##################################################################
 
-# update /boot/config.txt with appropriate values
-function update_configtxt() {
 
-    if grep -q "pi-tft" "/boot/config.txt"; then
-        echo "Already have a tft-setup section in /boot/config.txt."
-        echo "Adding new section, but please run:"
-        echo "sudo nano /boot/config.txt"
-        echo "...and remove any duplicate sections."
-    fi
+##################################################################
+##                                                              ##
+##                    Menus                                     ##
 
-    if [ "${pitfttype}" == "22" ]; then
-        # formerly: options fbtft_device name=adafruit22a gpios=dc:25 rotate=270 frequency=32000000
-        overlay="dtoverlay=pitft22,rotate=270,speed=32000000,fps=20"
-    fi
-
-    if [ "${pitfttype}" == "28r" ]; then
-        overlay="dtoverlay=pitft28-resistive,rotate=90,speed=62000000,fps=60"
-    fi
-
-    if [ "${pitfttype}" == "28c" ]; then
-        overlay="dtoverlay=pitft28c,rotate=90,speed=62000000,fps=60"
-    fi
-
-    if [ "${pitfttype}" == "35r" ]; then
-      ## overlay="dtoverlay=pitft35r,rotate=90,speed=32000000,fps=20"
-      ## overlay="dtoverlay=pitft35r,rotate=90,speed=42000000,fps=20"
-      ## overlay="dtoverlay=pitft35-resistive,rotate=270,speed=42000000,fps=30"
-      overlay="dtoverlay=pitft35-resistive,rotate=270,speed=25000000,fps=20"
-    fi
-    
-    if [ "${pitfttype}" == "35ro" ]; then
-      ## overlay="dtoverlay=pitft35r,rotate=90,speed=32000000,fps=20"
-      ## overlay="dtoverlay=pitft35r,rotate=90,speed=42000000,fps=20"
-      overlay="dtoverlay=pitft35-resistive,rotate=270,speed=42000000,fps=30"
-    fi
-
-    if [ "${pitfttype}" == "elec22" ]; then
-        overlay="dtoverlay=elec22"
-    fi
-    if [ "${pitfttype}" == "hy28b" ]; then
-        overlay="dtoverlay=hy28b,rotate=90"
-    fi
-    if [ "${pitfttype}" == "jb35" ]; then
-        overlay="dtoverlay=jbtek"
-    fi
-    if [ "${pitfttype}" == "kum35" ]; then
-        overlay="dtoverlay=waveshare35a"
-    fi
-    if [ "${pitfttype}" == "sain32" ]; then
-        overlay="dtoverlay=sainsmart32"
-    fi
-    if [ "${pitfttype}" == "sain35" ]; then
-        overlay="dtoverlay=waveshare35a"
-    fi
-    if [ "${pitfttype}" == "wave32" ]; then
-        overlay="dtoverlay=waveshare32b:rotate=270"
-    fi
-    if [ "${pitfttype}" == "wave35" ]; then
-        overlay="dtoverlay=waveshare35a"
-    fi
-    if [ "${pitfttype}" == "wave35b" ]; then
-        overlay="dtoverlay=waveshare35b"
-    fi
-    if [ "${pitfttype}" == "wave35h" ]; then
-        overlay="hdmi_group=2
-hdmi_mode=1
-hdmi_mode=87
-hdmi_cvt 480 320 60 6 0 0 0
-dtoverlay=ads7846,cs=1,penirq=25,penirq_pull=2,speed=50000,keep_vref_on=0,swapxy=0,pmax=255,xohms=150,xmin=200,xmax=3900,ymin=200,ymax=3900
-hdmi_drive=1"
-    fi
-    if [ "${pitfttype}" == "wave35o" ]; then
-        overlay="dtoverlay=waveshare35a,speed=32000000,fps=50"
-    fi
-    if [ "${pitfttype}" == "wave40" ]; then
-        overlay="dtoverlay=waveshare35a:rotate=270"
-    fi
-    if [ "${pitfttype}" == "wave50" ]; then
-        overlay="hdmi_group=2
-hdmi_mode=1
-hdmi_mode=87
-hdmi_cvt 800 480 60 6 0 0 0
-dtoverlay=ads7846,cs=1,penirq=25,penirq_pull=2,speed=50000,keep_vref_on=0,swapxy=0,pmax=255,xohms=150,xmin=200,xmax=3900,ymin=200,ymax=3900
-hdmi_drive=1"
-    fi
-
-    date=`date`
-    cat >> /boot/config.txt <<EOF
-
-# --- added by re4son-pi-tft-setup $date ---
-dtparam=spi=on
-dtparam=i2c1=on
-dtparam=i2c_arm=on
-$overlay
-###########################################
-####  Overclocking the micro sdcard    ####
-#### Uncomment  84 for Raspberry Pi 2  ####
-# dtparam=sd_overclock=84
-#### Uncomment 100 for Raspberry Pi 3  ####
-# dtparam=sd_overclock=100
-###########################################
-# --- end re4son-pi-tft-setup $date ---
-EOF
-
-}
-
-# currently for '90' rotation only
-function update_xorg() {
-    mkdir -p /etc/X11/xorg.conf.d
-
-    cat > /etc/X11/xorg.conf.d/99-fbdev.conf <<EOF
-Section "Device"
-  Identifier "myfb"
-  Driver "fbdev"
-  Option "fbdev" "$FRAMEBUFFER"
-EndSection
-EOF
-
-    if [ "${pitfttype}" == "28r" ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier      "calibration"
-        MatchProduct    "stmpe-ts"
-        Option  "Calibration"   "3800 200 200 3800"
-        Option  "SwapAxes"      "1"
-EndSection
-EOF
-    fi
-
-    if [[ "${pitfttype}" =~ 35r.* ]]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier      "calibration"
-        MatchProduct    "stmpe-ts"
-        Option  "Calibration"   "3800 120 200 3900"
-        Option  "SwapAxes"      "1"
-EndSection
-EOF
-    fi
-
-    if [ "${pitfttype}" == "28c" ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-         Identifier "captouch"
-         MatchProduct "ft6x06_ts"
-         Option "SwapAxes" "1"
-         Option "InvertY" "1"
-         Option "Calibration" "0 320 0 240"
-EndSection
-EOF
-    fi
-    if [ "${pitfttype}" == "hy28b" ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier      "calibration"
-        MatchProduct    "ADS7843 Touchscreen"
-        Option  "Calibration"   "3800 200 200 3800"
-        Option  "SwapAxes"      "1"
-EndSection
-EOF
-    fi
-    if [ "${pitfttype}" == "wave32" ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-         Identifier "calibration"
-         MatchProduct "ADS7846 Touchscreen"
-         Option "SwapAxes" "1"
-         Option "Calibration" "160 3723 3896 181"
-EndSection
-EOF
-    fi
-    if [ "${pitfttype}" == "wave35" ] || [ "${pitfttype}" == "wave35b" ] || [ "${pitfttype}" == "wave35o" ] || [ "${pitfttype}" == "kum35" ] || [ "${pitfttype}" == "sain35" ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-         Identifier "calibration"
-         MatchProduct "ADS7846 Touchscreen"
-         Option "SwapAxes" "1"
-         Option "Calibration" "3933 227 241 3893"
-EndSection
-EOF
-    fi
-    if [ "${pitfttype}" == "wave35h" ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier      "calibration"
-        MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "190 3991 243 3895"
-        Option  "SwapAxes"      "0"
-EndSection
-EOF
-    fi
-    if [ "${pitfttype}" == "wave40" ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier      "calibration"
-        MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3950 172 3871 194"
-        Option  "SwapAxes"      "1"
-EndSection
-EOF
-    fi
-    if [ "${pitfttype}" == "wave50" ]; then
-        cat > /etc/X11/xorg.conf.d/99-calibration.conf <<EOF
-Section "InputClass"
-        Identifier      "calibration"
-        MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "138 3952 214 4002"
-        Option  "SwapAxes"      "0"
-EndSection
-EOF
-    fi
-
-    libinput_path="/usr/share/X11/xorg.conf.d/60-libinput.conf"
-    if [ -e $libinput_path ]; then
-        info PI-TFT "Applying Neto calibration patch:"
-        echo "Moving ${libinput_path} to ${TARGET_HOMEDIR}/.60-libinput.conf.bak"
-        mv "$libinput_path" ${TARGET_HOMEDIR}/.60-libinput.conf.bak
-    fi
-}
-
-function update_x11profile() {
-    fbturbo_path="/usr/share/X11/xorg.conf.d/99-fbturbo.conf"
-    if [ -e $fbturbo_path ]; then
-        echo "Moving ${fbturbo_path} to ${TARGET_HOMEDIR}"
-        mv "$fbturbo_path" "$TARGET_HOMEDIR"
-    fi
-    if [ ! $HDMI ]; then
-        if grep -q "export FRAMEBUFFER=/dev/fb1" "${TARGET_HOMEDIR}/.profile"; then
-            echo "Already had 'export FRAMEBUFFER=/dev/fb1'"
-        elif grep -xq "export FRAMEBUFFER=/dev/fb0" "${TARGET_HOMEDIR}/.profile"; then
-            echo "Adding 'export FRAMEBUFFER=/dev/fb1'"
-	    sed "${TARGET_HOMEDIR}/.profile" -i -e "s/export FRAMEBUFFER=\/dev\/fb0/export FRAMEBUFFER=\/dev\/fb1/"
-        else
-            echo "Adding 'export FRAMEBUFFER=/dev/fb1'"
-            date=`date`
-            cat >> "${TARGET_HOMEDIR}/.profile" <<EOF
-# --- added by re4son-pi-tft-setup $date ---
-export FRAMEBUFFER=/dev/fb1
-# --- end re4son-pi-tft-setup $date ---
-EOF
-        fi
-    else
-        if grep -xq "export FRAMEBUFFER=/dev/fb0" "${TARGET_HOMEDIR}/.profile"; then
-            echo "Already had 'export FRAMEBUFFER=/dev/fb0'"
-        elif grep -xq "export FRAMEBUFFER=/dev/fb0" "${TARGET_HOMEDIR}/.profile"; then
-            echo "Adding 'export FRAMEBUFFER=/dev/fb0'"
-	    sed "${TARGET_HOMEDIR}/.profile" -i -e "s/export FRAMEBUFFER=\/dev\/fb1/export FRAMEBUFFER=\/dev\/fb0/"
-        else
-            echo "Adding 'export FRAMEBUFFER=/dev/fb0'"
-            date=`date`
-            cat >> "${TARGET_HOMEDIR}/.profile" <<EOF
-# --- added by re4son-pi-tft-setup $date ---
-export FRAMEBUFFER=/dev/fb0
-# --- end re4son-pi-tft-setup $date ---
-EOF
-        fi
-    fi
-}
-
-# currently for '90' rotation only
-function update_pointercal() {
-    if [ "${pitfttype}" == "28r" ] || [ "${pitfttype}" == "hy28b" ]; then
-        cat > /etc/pointercal <<EOF
--30 -5902 22077792 4360 -105 -1038814 65536
-EOF
-    fi
-
-    if [[ "${pitfttype}" =~ 35r.* ]]; then
-        cat > /etc/pointercal <<EOF
-8 -8432 32432138 5699 -112 -965922 65536
-EOF
-    fi
-
-    if [ "${pitfttype}" == "wave35" ] || [ "${pitfttype}" == "wave35b" ] || [ "${pitfttype}" == "wave35o" ] || [ "${pitfttype}" == "kum35" ] || [ "${pitfttype}" == "sain35" ]; then
-        cat > /etc/pointercal <<EOF
-8 -8432 32432138 5699 -112 -965922 65536
-EOF
-    fi
-
-    if [ "${pitfttype}" == "28c" ]; then
-        cat > /etc/pointercal <<EOF
-320 65536 0 -65536 0 15728640 65536
-EOF
-    fi
-
-    if [ "${pitfttype}" == "4dpi" ]; then
-        cat > /etc/pointercal <<EOF
-5803 131 -2411836 53 4296 -937452 65536
-EOF
-    fi
-    
-    if [ "${pitfttype}" == "wave50" ]; then
-        cat > /etc/pointercal <<EOF
-13874 297 -2846048 -151 8401 -1722344 65536 800 480
-EOF
-    fi
-    
-}
-
-function update_udev() {
-    if [ "${pitfttype}" == "28r" ] || [[ "${pitfttype}" =~ 35r.* ]]; then
-        cat > /etc/udev/rules.d/95-stmpe.rules <<EOF
-SUBSYSTEM=="input", ATTRS{name}=="stmpe-ts", ENV{DEVNAME}=="*event*", SYMLINK+="input/touchscreen"
-EOF
-    fi
-
-    if [ "${pitfttype}" == "28c" ]; then
-        cat > /etc/udev/rules.d/95-ft6206.rules <<EOF
-SUBSYSTEM=="input", ATTRS{name}=="ft6x06_ts", ENV{DEVNAME}=="*event*", SYMLINK+="input/touchscreen"
-EOF
-    fi
-    if [ "${pitfttype}" == "hy28b" ]; then
-        cat > /etc/udev/rules.d/95-stmpe.rules <<EOF
-SUBSYSTEM=="input", ATTRS{name}=="ADS7843 Touchscreen", ENV{DEVNAME}=="*event*", SYMLINK+="input/touchscreen"
-EOF
-    fi
-
-    if [ "${pitfttype}" == "wave32" ] || [ "${pitfttype}" == "wave35" ] || [ "${pitfttype}" == "wave35b" ] || [ "${pitfttype}" == "wave35o" ] || [ "${pitfttype}" == "kum35" ]   || [ "${pitfttype}" == "sain35" ] || [ "${pitfttype}" == "wave40" ] || [ "${pitfttype}" == "wave50" ]; then
-        cat > /etc/udev/rules.d/95-ADS7846.rules <<EOF
-SUBSYSTEM=="input", ATTRS{name}=="ADS7846 Touchscreen", ENV{DEVNAME}=="*event*", SYMLINK+="input/touchscreen"
-EOF
-    fi
-
-if [ "${pitfttype}" == "4dpi" ]; then
-        cat > /etc/udev/rules.d/95-AR1020.rules <<EOF
-SUBSYSTEM=="input", ATTRS{name}=="AR1020 Touchscreen", ENV{DEVNAME}=="*event*", SYMLINK+="input/touchscreen"
-EOF
-    fi
-    
-}
-
-function update_etcmodules() {
-    if [ "${pitfttype}" == "28c" ]; then
-        ts_module="ft6x06_ts"
-    elif [ "${pitfttype}" == "28r" ] || [[ "${pitfttype}" =~ 35r.* ]]; then
-        ts_module="stmpe_ts"
-    elif [ "${pitfttype}" == "4dpi" ]; then
-        ts_module="spi-bcm2835_dma
-i2c-dev
-pwmbl
-ar1020-i2c
-#4dpi_touch
-4dpi"
-        ## rotate screen
-        sed -i 's/rootwait/4dpi.rotate=180 rootwait/g' "/boot/cmdline.txt"
-    else
-        return 0
-    fi
-
-    if grep -xq "$ts_module" "/etc/modules"; then
-        info PI-TFT "Already had $ts_module"
-    else
-        info PI-TFT "Adding $ts_module"
-        date=`date`
-        cat >> /etc/modules <<EOF
-# --- added by re4son-pi-tft-setup $date ---
-$ts_module
-# --- end re4son-pi-tft-setup $date ---
-EOF
-    fi
-}
-
-function install_onoffbutton() {
-    echo "Adding rpi_power_switch to /etc/modules"
-    if grep -xq "rpi_power_switch" "${chr}/etc/modules"; then
-        echo "Already had rpi_power_switch"
-    else
-        echo "Adding rpi_power_switch"
-        date=`date`
-        cat >> /etc/modules <<EOF
-# --- added by re4son-pi-tft-setup $date ---
-rpi_power_switch
-# --- end re4son-pi-tft-setup $date ---
-EOF
-    fi
-
-    echo "Adding rpi_power_switch config to /etc/modprobe.d/re4son.conf"
-    if grep -xq "options rpi_power_switch gpio_pin=27 mode=0" "${chr}/etc/modprobe.d/re4son.conf"; then
-        info PI-TFT "Already had rpi_power_switch config"
-    else
-        info PI-TFT "Adding rpi_power_switch"
-        date=`date`
-        cat >> /etc/modprobe.d/re4son.conf <<EOF
-# --- added by re4son-pi-tft-setup $date ---
-options rpi_power_switch gpio_pin=27 mode=0
-# --- end re4son-pi-tft-setup $date ---
-EOF
-    fi
-}
-
-check_bin(){
-    BIN_PATH=$(which $1)
-    if [ "" = "$BIN_PATH" ]; then
-        echo 0
-    else
-        echo 1
-    fi
-}
-
-check_pkg(){
-    PKG_STATUS=$(dpkg-query -W --showformat='${Status}\n' $1|grep "install ok installed")
-    if [ "" = "$PKG_STATUS" ]; then
-        echo 0
-    else
-        echo 1
-    fi
-}
-
-calc_wt_size() {
-    # NOTE: it's tempting to redirect stderr to /dev/null, so supress error 
-    # output from tput. However in this case, tput detects neither stdout or 
-    # stderr is a tty and so only gives default 80, 24 values
-    WT_HEIGHT=17
-    WT_WIDTH=$(tput cols)
-
-    if [ -z "$WT_WIDTH" ] || [ "$WT_WIDTH" -lt 100 ]; then
-        WT_WIDTH=90
-    elif [ "$WT_WIDTH" -gt 178 ]; then
-        WT_WIDTH=120
-    else
-        WT_WIDTH=$((WT_WIDTH-10))
-    fi
-    WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
-}
-
-function do_about() {
-    whiptail --msgbox "\
-kalipi-tft-config version $VERSION
-
-This tool provides a straight-forward way of setting
-up various TFT screens for the Kali-Pi.
-" 20 70 1
-}
 
 function do_setup_success() {
     if [ "$INTERACTIVE" = True ]; then
@@ -3465,41 +2907,6 @@ https://github.com/Re4son/RPi-Tweaks/tree/master/kalipi-config
     fi
 }
 
-function check_dependencies() {
-    local PROGRAMS=("whiptail")
-    local PACKAGES=("whiptail")
-    local missingprogs=""
-    local missingpkgs=""
-    for i in "${!PROGRAMS[@]}"; do
-        if [ $(check_bin ${PROGRAMS[$i]}) -eq 0 ]; then
-            missingpkgs="${missingpkgs}${PACKAGES[$i]} "
-        fi
-    done
-    if [ "" != "$missingpkgs" ]; then
-        printf "\nThe following packages are missing:         $missingpkgs\n"
-        printf "Please install them before continuing, i.e.:\n"
-        printf "\nsudo apt install $missingpkgs\n\n"
-        exit 1
-    fi
-
-    if grep -q boot /proc/mounts; then
-        :
-    else
-	mount /dev/mmcblk0p1 /boot
-        if grep -q boot /proc/mounts; then
-            :
-        else
-            whiptail --msgbox "\
-Error: Cannot mount /boot.
-
-If you're sure it is mounted, proceed - otherwise quit here and try:
-
-sudo mount /dev/mmcblk0p1 /boot
-" 20 70 1
-        fi
-    fi
-}
-
 do_finish() {
     if [ $ASK_TO_REBOOT -eq 1 ]; then
         whiptail --yesno "Would you like to reboot now?" 20 60 2
@@ -3510,12 +2917,6 @@ do_finish() {
     fi
     exit 0
 }
-
-
-##################################################################
-##                                                              ##
-##                    Menus                                     ##
-
 
 function do_confirm_menu() {
     pitfttype=$1
@@ -3638,6 +3039,86 @@ function do_elecfreak_menu() {
     fi
 }
 
+function do_hotmcu_menu() {
+    calc_wt_size
+    SCREEN=$(whiptail --title "$TITLE" --menu "Hotmcu Touchscreen setup" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+        "hy28b" "Hotmcu HY28B 2.2\" Touchscreen" \
+        3>&1 1>&2 2>&3)
+    RET=$?
+    if [ $RET -eq 1 ]; then
+        return 0
+    elif [ $RET -eq 0 ]; then
+        case "$SCREEN" in
+            hy28b*) do_rotation_menu "ROT090 90" && do_homedir_menu && do_confirm_menu $SCREEN ;;
+            *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
+        esac || whiptail --msgbox "There was an error running option $SCREEN" 20 60 1
+    fi
+}
+
+function do_jbtek_menu_() {
+    calc_wt_size
+    SCREEN=$(whiptail --title "$TITLE" --menu "JBTek Touchscreen setup" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+        "jb35" "JBTek 3.5\" Touchscreen" \
+        3>&1 1>&2 2>&3)
+    RET=$?
+    if [ $RET -eq 1 ]; then
+        return 0
+    elif [ $RET -eq 0 ]; then
+        case "$SCREEN" in
+            jb35*) do_rotation_menu && do_homedir_menu && do_confirm_menu $SCREEN ;;
+            *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
+        esac || whiptail --msgbox "There was an error running option $SCREEN" 20 60 1
+    fi
+}
+
+function do_kuman_menu() {
+    calc_wt_size
+    SCREEN=$(whiptail --title "$TITLE" --menu "Kuman Touchscreen setup" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+        "kum35" "Kuman 3.5\" Touchscreen" \
+        3>&1 1>&2 2>&3)
+    RET=$?
+    if [ $RET -eq 1 ]; then
+        return 0
+    elif [ $RET -eq 0 ]; then
+        case "$SCREEN" in
+            kum90*) do_rotation_menu "ROT090 90" && do_homedir_menu && do_confirm_menu $SCREEN ;;
+            *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
+        esac || whiptail --msgbox "There was an error running option $SCREEN" 20 60 1
+    fi
+}
+
+function do_kedei_menu() {
+    calc_wt_size
+    SCREEN=$(whiptail --title "$TITLE" --menu "Kedei Touchscreen setup" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+        "kedei35" "KeDei 3.5\" Touchscreen" \
+        3>&1 1>&2 2>&3)
+    RET=$?
+    if [ $RET -eq 1 ]; then
+        return 0
+    elif [ $RET -eq 0 ]; then
+        case "$SCREEN" in
+            kedei35*) do_rotation_menu "ROT090 90" && do_homedir_menu && do_confirm_menu $SCREEN ;;
+            *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
+        esac || whiptail --msgbox "There was an error running option $SCREEN" 20 60 1
+    fi
+}
+
+function do_osoyoo_menu() {
+    calc_wt_size
+    SCREEN=$(whiptail --title "$TITLE" --menu "Osoyoo Touchscreen setup" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+        "oso35" "Osoyoo 3.5\" Touchscreen" \
+        3>&1 1>&2 2>&3)
+    RET=$?
+    if [ $RET -eq 1 ]; then
+        return 0
+    elif [ $RET -eq 0 ]; then
+        case "$SCREEN" in
+            oso35*) do_rotation_menu "ROT090 90" && do_homedir_menu && do_confirm_menu $SCREEN ;;
+            *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
+        esac || whiptail --msgbox "There was an error running option $SCREEN" 20 60 1
+    fi
+}
+
 function do_raspberry_menu() {
     calc_wt_size
     SCREEN=$(whiptail --title "$TITLE" --menu "Raspberry Touchscreen setup" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
@@ -3649,6 +3130,24 @@ function do_raspberry_menu() {
     elif [ $RET -eq 0 ]; then
         case "$SCREEN" in
             pi70*) do_rotation_menu "ROT180 180" && do_homedir_menu && do_confirm_menu $SCREEN ;;
+            *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
+        esac || whiptail --msgbox "There was an error running option $SCREEN" 20 60 1
+    fi
+}
+
+function do_sainsmart_menu() {
+    calc_wt_size
+    SCREEN=$(whiptail --title "$TITLE" --menu "Sainsmart Touchscreen setup" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+        "sain32" "Sainsmart 3.2\" Touchscreen" \
+        "sain35" "Sainsmart 3.5\" Touchscreen" \
+        3>&1 1>&2 2>&3)
+    RET=$?
+    if [ $RET -eq 1 ]; then
+        return 0
+    elif [ $RET -eq 0 ]; then
+        case "$SCREEN" in
+            sain32*) do_rotation_menu && do_homedir_menu && do_confirm_menu $SCREEN ;;
+            sain35*) do_rotation_menu "ROT090 90" && do_homedir_menu && do_confirm_menu $SCREEN ;;
             *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
         esac || whiptail --msgbox "There was an error running option $SCREEN" 20 60 1
     fi
@@ -3704,14 +3203,14 @@ function do_setup_menu() {
             S010\ *) do_4dsystems_menu;;
             S020\ *) do_adafruit_menu;;
             S030\ *) do_elecfreak_menu;;
-            S040\ *) ;;
-            S050\ *) ;;
-            S060\ *) ;;
-            S070\ *) ;;
-            S080\ *) ;;
-            S090\ *) ;;
+            S040\ *) do_elecrow_menu;;
+            S050\ *) do_hotmcu_menu;;
+            S060\ *) do_jbtek_menu;;
+            S070\ *) do_kedei_menu;;
+            S080\ *) do_kuman_menu;;
+            S090\ *) do_osoyoo_menu;;
             S100\ *) do_raspberry_menu;;
-            S110\ *) ;;
+            S110\ *) do_sainsmart_menu;;
             S120\ *) do_waveshare_menu;;
             *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
         esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
@@ -3949,7 +3448,7 @@ case "${pitfttype}" in
                 do_install_jb35
 		;;
         kedei35)
-                do_install_keidei35
+                do_install_kedei35
                 ;;
 	kum35)
                 do_install_kum35 
@@ -3995,73 +3494,3 @@ case "${pitfttype}" in
 		print_help
 esac
 
-
-if [ "${pitfttype}" == "wave50" ] || [ "${pitfttype}" == "wave35h" ]; then
-    HDMI="1"
-fi
-
-if [ $HDMI ]; then
-    FRAMEBUFFER="/dev/fb0"
-else
-    FRAMEBUFFER="/dev/fb1"
-fi
-
-if [ "${pitfttype}" == "wave35c" ]; then
-    pitfttype=kum35
-fi
-
-info PI-TFT "Updating X11 default calibration"
-update_xorg || bail "Unable to update /etc/X11/xorg.conf.d/99-calibration.conf"
-
-info PI-TFT "Updating X11 setup tweaks..."
-update_x11profile || bail "Unable to update X11 setup"
-
-info PI-TFT "Updating TSLib default calibration..."
-update_pointercal || bail "Unable to update /etc/pointercal"
-
-info PI-TFT "Updating SysFS rules for Touchscreen..."
-update_udev || bail "Unable to update /etc/udev/rules.d"
-
-# ask for console access
-if ask "Would you like the console to appear on the PiTFT display?" "Y"; then
-    info PI-TFT "Updating console to PiTFT..."
-    install_console || bail "Unable to configure console"
-else
-    info PI-TFT "Making sure console doesn't use PiTFT"
-    uninstall_console || bail "Unable to configure console"
-fi
-
-info PI-TFT "Updating /etc/modules..."
-update_etcmodules || bail "Unable to update /etc/modules"
-
-if [ "${pitfttype}" == "28r" ] || [ "${pitfttype}" == "28c" ] || [ "${pitfttype}" == "22" ]; then
-    # ask for 'on/off' button
-    if ask "Would you like GPIO #27 to act as a on/off button?" "Y"; then
-        info PI-TFT "Adding GPIO #27 on/off to PiTFT..."
-        install_onoffbutton || bail "Unable to add on/off button"
-    fi
-fi
-
-if [ "${pitfttype}" == "elec22" ] || [ "${pitfttype}" == "jb35" ] || [ "${pitfttype}" == "sain32" ]; then
-    echo "Your screen is configured for console use"
-    echo "To output X on this screen, manual editing of some configuration files"
-    echo "according to the manufacturers instructions might be required."
-    echo
-    echo "You can use the xinput-calibrator in the tools directory to calibrate the touch screen."
-fi
-
-info PI-TFT "Updating /boot/config.txt..."
-update_configtxt || bail "Unable to update /boot/config.txt"
-
-info PI-TFT "Installing dependencies..."
-install_xserver-xorg-input-evdev
-
-info PI-TFT "Success!"
-echo
-echo
-read -p "Reboot to apply changes? (y/n): " -n 1 -r
-echo
-
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  reboot
-fi
