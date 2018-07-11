@@ -452,7 +452,7 @@ EOF
     install_xserver-xorg-input-evdev
 
     # Install on/off button
-    do_install_onoffbutton
+    #do_install_onoffbutton
 
     # success
     do_setup_success
@@ -474,7 +474,7 @@ function do_install_28c() {
     # update /boot/config.txt
     info PI-TFT "Updating /boot/config.txt..."
     date=`date`
-    overlay="dtoverlay=pitft28-capacitive,rotate=${ROTATION},speed=64000000,fps=30"
+    overlay="dtoverlay=pitft28c,rotate=${ROTATION},speed=64000000,fps=60"
     cat >> /boot/config.txt <<EOF
 # --- added by re4son-pi-tft-setup $date ---
 dtparam=spi=on
@@ -550,13 +550,13 @@ EOF
     # update /etc/pointercal
     info PI-TFT "Updating TSLib default calibration..."
     if [ "$ROTATION" = 0 ]; then
-        pointercal="320 65536 0 -65536 0 15728640 65536"
+        pointercal="-54855 -2746 14927070 1699 -67111 20400204 65536 240 320"
     elif [ "$ROTATION" = 90 ]; then
         pointercal="320 65536 0 -65536 0 15728640 65536"
     elif [ "$ROTATION" = 180 ]; then
-        pointercal="320 65536 0 -65536 0 15728640 65536"
+        pointercal="56011 699 189872 -2778 68277 -159244 65536 240 320"
     elif [ "$ROTATION" = 270 ]; then
-        pointercal="320 65536 0 -65536 0 15728640 65536"
+        pointercal="-1250 -65726 21361704 56035 1848 278316 65536 320 240"
     fi
     cat > /etc/pointercal <<EOF
 $pointercal
@@ -586,7 +586,7 @@ EOF
     install_xserver-xorg-input-evdev
 
     # Install on/off button
-    do_install_onoffbutton
+    #do_install_onoffbutton
 
     # success
     do_setup_success
@@ -716,7 +716,7 @@ EOF
     install_xserver-xorg-input-evdev
 
     # Install on/off button
-    do_install_onoffbutton
+    #do_install_onoffbutton
 
     # success
     do_setup_success
@@ -2771,7 +2771,7 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3952 138 4002 214"
+        Option  "Calibration"   "138 3952 214 4002"
         Option  "SwapAxes"      "0"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
@@ -2783,7 +2783,7 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "3952 138 214 4002"
+        Option  "Calibration"   "138 3952 4002 214"
         Option  "SwapAxes"      "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
@@ -2795,8 +2795,9 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "138 3952 214 4002"
+        Option  "Calibration"   "3952 138 214 4002"
         Option  "SwapAxes"      "0"
+        Option "InvertY" "1"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -2807,8 +2808,8 @@ EOF
 Section "InputClass"
         Identifier      "calibration"
         MatchProduct    "ADS7846 Touchscreen"
-        Option  "Calibration"   "138 3952 4002 214"
-        Option  "SwapAxes"      "1"
+        Option  "Calibration"   "3952 138 4002 214"
+        Option  "SwapAxes"      "0"
         Option "EmulateThirdButton" "1"
         Option "EmulateThirdButtonTimeout" "1000"
         Option "EmulateThirdButtonMoveThreshold" "300"
@@ -2831,7 +2832,7 @@ EOF
     elif [ "$ROTATION" = 90 ]; then
         pointercal="13874 297 -2846048 -151 8401 -1722344 65536 800 480"
     elif [ "$ROTATION" = 180 ]; then
-        pointercal="13874 297 -2846048 -151 8401 -1722344 65536 800 480"
+        pointercal="-13922 5 54388156 52 -8417 33460254 65536 800 480"
     elif [ "$ROTATION" = 270 ]; then
         pointercal="13874 297 -2846048 -151 8401 -1722344 65536 800 480"
     fi
@@ -3033,7 +3034,7 @@ function do_elecfreak_menu() {
         return 0
     elif [ $RET -eq 0 ]; then
         case "$SCREEN" in
-            elec22*) do_rotation_menu && do_homedir_menu && do_confirm_menu $SCREEN ;;
+            elec22*) do_rotation_menu "ROT090 90" && do_homedir_menu && do_confirm_menu $SCREEN ;;
             *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
         esac || whiptail --msgbox "There was an error running option $SCREEN" 20 60 1
     fi
@@ -3065,7 +3066,7 @@ function do_jbtek_menu_() {
         return 0
     elif [ $RET -eq 0 ]; then
         case "$SCREEN" in
-            jb35*) do_rotation_menu && do_homedir_menu && do_confirm_menu $SCREEN ;;
+            jb35*) do_rotation_menu "ROT090 90" && do_homedir_menu && do_confirm_menu $SCREEN ;;
             *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
         esac || whiptail --msgbox "There was an error running option $SCREEN" 20 60 1
     fi
@@ -3171,8 +3172,8 @@ function do_waveshare_menu() {
             wave32*) do_rotation_menu "ROT270 270" && do_homedir_menu && do_confirm_menu $SCREEN ;;
             wave35*) do_rotation_menu "ROT090 90" && do_homedir_menu && do_confirm_menu $SCREEN ;;
             wave35b*) do_rotation_menu "ROT090 90" && do_homedir_menu && do_confirm_menu $SCREEN ;;
-            wave35h*) do_rotation_menu && do_homedir_menu && do_confirm_menu $SCREEN ;;
-            wave40*) do_rotation_menu && do_homedir_menu && do_confirm_menu $SCREEN ;;
+            wave35h*) do_rotation_menu "ROT090 90" && do_homedir_menu && do_confirm_menu $SCREEN ;;
+            wave40*) do_rotation_menu "ROT090 90" && do_homedir_menu && do_confirm_menu $SCREEN ;;
             wave50*) do_rotation_menu && do_homedir_menu && do_confirm_menu $SCREEN ;;
             *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
         esac || whiptail --msgbox "There was an error running option $SCREEN" 20 60 1
@@ -3432,12 +3433,15 @@ case "${pitfttype}" in
                 do_install_35r
 		;;
 	22)
+		ROTATION=90
                 do_install_22
 		;;
 	ecrow35)
+		ROTATION=90
                 do_install_ecrow35
 		;;
 	elec22)
+		ROTATION=90
                 do_install_elec22
 		;;
 	hy28b)
@@ -3445,12 +3449,15 @@ case "${pitfttype}" in
                 do_install_hy28b
 		;;
 	jb35)
+		ROTATION=90
                 do_install_jb35
 		;;
         kedei35)
+		ROTATION=90
                 do_install_kedei35
                 ;;
 	kum35)
+		ROTATION=90
                 do_install_kum35 
 		;;
         oso35)
@@ -3461,29 +3468,31 @@ case "${pitfttype}" in
 		do_install_pi70
 		;;
 	sain32)
+		ROTATION=90
                 do_install_sain32
 		;;
 	sain35)
+		ROTATION=90
                 do_install_sain35
 		;;
 	wave32)
-		ROTATION=270
+		ROTATION=90
                 do_install_wave32
 		;;
 	wave35)
-		ROTATION=270
+		ROTATION=90
                 do_install_wave35
 		;;
 	wave35b)
-		ROTATION=270
+		ROTATION=90
                 do_install_wave35b
 		;;
 	wave35h)
-		ROTATION=270
+		ROTATION=90
                 do_install_wave35b
 		;;
 	wave40)
-		ROTATION=270
+		ROTATION=90
                 do_install_wave40
 		;;
 	wave50)
