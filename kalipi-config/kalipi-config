@@ -12,7 +12,7 @@ BLACKLIST=/etc/modprobe.d/kalipi-blacklist.conf
 CONFIG=/boot/config.txt
 PROG_NAME="$0"
 ARGS="$@"
-VERSION="4.9-1.4.1"
+VERSION="4.14-1.5.0"
 
 info() {
     system="$1"
@@ -201,41 +201,11 @@ $PART_START
 p
 w
 EOF
-  ASK_TO_REBOOT=1
 
-  # now set up an init.d script
-cat <<EOF > /etc/init.d/resize2fs_once &&
-#!/bin/sh
-### BEGIN INIT INFO
-# Provides:          resize2fs_once
-# Required-Start:
-# Required-Stop:
-# Default-Start: 3
-# Default-Stop:
-# Short-Description: Resize the root filesystem to fill partition
-# Description:
-### END INIT INFO
-
-. /lib/lsb/init-functions
-
-case "\$1" in
-  start)
-    log_daemon_msg "Starting resize2fs_once" &&
-    resize2fs /dev/$ROOT_PART &&
-    update-rc.d resize2fs_once remove &&
-    rm /etc/init.d/resize2fs_once &&
-    log_end_msg \$?
-    ;;
-  *)
-    echo "Usage: \$0 start" >&2
-    exit 3
-    ;;
-esac
-EOF
-  chmod +x /etc/init.d/resize2fs_once &&
-  update-rc.d resize2fs_once defaults &&
+  partprobe /dev/mmcblk0
+  resize2fs /dev/$ROOT_PART
   if [ "$INTERACTIVE" = True ]; then
-    whiptail --msgbox "Root partition has been resized.\nThe filesystem will be enlarged upon the next reboot" 20 60 2
+    whiptail --msgbox "Root partition has been resized successfully." 20 60 2
   fi
 }
 
