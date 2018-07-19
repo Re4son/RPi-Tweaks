@@ -12,7 +12,7 @@ BLACKLIST=/etc/modprobe.d/kalipi-blacklist.conf
 CONFIG=/boot/config.txt
 PROG_NAME="$0"
 ARGS="$@"
-VERSION="4.14-1.6.0"
+VERSION="4.14-1.7.0"
 
 info() {
     system="$1"
@@ -138,6 +138,20 @@ configuration of the Kali-Pi. Although it can be run
 at any time, some of the options may have difficulties if
 you have heavily customised your installation.\
 " 20 70 1
+}
+
+function do_kalipi_tft_config() {
+    BIN_PATH=$(which kalipi-tft-config)
+    if [ "" = "$BIN_PATH" ]; then
+    whiptail --msgbox "\
+Error:
+The tool "kalipi-tft-config" cannot be found on this system.
+It can be installed from this site:
+https://github.com/Re4son/RPi-Tweaks/tree/master/kalipi-tft-config
+" 20 70 1
+    else
+        exec $BIN_PATH
+    fi
 }
 
 get_partvars () {
@@ -1959,26 +1973,28 @@ if [ "$INTERACTIVE" = True ]; then
   while true; do
     if is_pi ; then
       FUN=$(whiptail --title "Kali-Pi Software Configuration Tool (kalipi-config)" --backtitle "$(cat /proc/device-tree/model| tr -d '\0')" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
-        "1 Change User Password" "Change password for any user" \
-        "2 Network Options" "Configure network settings" \
-        "3 Boot Options" "Configure options for start-up" \
-        "4 Localisation Options" "Set up language and regional settings to match your location" \
-        "5 Interfacing Options" "Configure connections to peripherals" \
-        "6 Overclock" "Configure overclocking for your Pi" \
-        "7 Advanced Options" "Configure advanced settings" \
-        "8 Update" "Update this tool to the latest version" \
-        "9 About kalipi-config" "Information about this configuration tool" \
+        "01 Change User Password" "Change password for any user" \
+        "02 Network Options" "Configure network settings" \
+        "03 Boot Options" "Configure options for start-up" \
+        "04 Localisation Options" "Set up language and regional settings to match your location" \
+        "05 Interfacing Options" "Configure connections to peripherals" \
+        "06 Overclock" "Configure overclocking for your Pi" \
+        "07 Advanced Options" "Configure advanced settings" \
+        "08 Kali-Pi TFT Config" "Run the kalipi-tft-config tool to set up a tft screen" \
+        "09 Update" "Update this tool to the latest version" \
+        "10 About kalipi-config" "Information about this configuration tool" \
         3>&1 1>&2 2>&3)
     else
       FUN=$(whiptail --title "Kali-Pi Software Configuration Tool (kalipi-config)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
-        "1 Change User Password" "Change password for the current user" \
-        "2 Network Options" "Configure network settings" \
-        "3 Boot Options" "Configure options for start-up" \
-        "4 Localisation Options" "Set up language and regional settings to match your location" \
-        "5 SSH" "Enable/Disable remote command line access to your PC using SSH" \
-        "6 Pixel Doubling" "Enable/Disable 2x2 pixel mapping" \
-        "8 Update" "Update this tool to the latest version" \
-        "9 About kalipi-config" "Information about this configuration tool" \
+        "01 Change User Password" "Change password for the current user" \
+        "02 Network Options" "Configure network settings" \
+        "03 Boot Options" "Configure options for start-up" \
+        "04 Localisation Options" "Set up language and regional settings to match your location" \
+        "05 SSH" "Enable/Disable remote command line access to your PC using SSH" \
+        "06 Pixel Doubling" "Enable/Disable 2x2 pixel mapping" \
+        "08 Kali-Pi TFT Config" "Run the kalipi-tft-config tool to set up a tft screen" \
+        "09 Update" "Update this tool to the latest version" \
+        "10 About kalipi-config" "Information about this configuration tool" \
         3>&1 1>&2 2>&3)
     fi
     RET=$?
@@ -1987,27 +2003,29 @@ if [ "$INTERACTIVE" = True ]; then
     elif [ $RET -eq 0 ]; then
       if is_pi ; then
         case "$FUN" in
-          1\ *) do_change_pass ;;
-          2\ *) do_network_menu ;;
-          3\ *) do_boot_menu ;;
-          4\ *) do_internationalisation_menu ;;
-          5\ *) do_interface_menu ;;
-          6\ *) do_overclock ;;
-          7\ *) do_advanced_menu ;;
-          8\ *) do_update;;
-          9\ *) do_about ;;
+          01\ *) do_change_pass ;;
+          02\ *) do_network_menu ;;
+          03\ *) do_boot_menu ;;
+          04\ *) do_internationalisation_menu ;;
+          05\ *) do_interface_menu ;;
+          06\ *) do_overclock ;;
+          07\ *) do_advanced_menu ;;
+          08\ *) do_kalipi_tft_config;;
+          09\ *) do_update;;
+          10\ *) do_about ;;
           *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
         esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
       else
         case "$FUN" in
-          1\ *) do_change_pass ;;
-          2\ *) do_network_menu ;;
-          3\ *) do_boot_menu ;;
-          4\ *) do_internationalisation_menu ;;
-          5\ *) do_ssh ;;
-          6\ *) do_pixdub ;;
-          8\ *) do_update ;;
-          9\ *) do_about ;;
+          01\ *) do_change_pass ;;
+          02\ *) do_network_menu ;;
+          03\ *) do_boot_menu ;;
+          04\ *) do_internationalisation_menu ;;
+          05\ *) do_ssh ;;
+          06\ *) do_pixdub ;;
+          08\ *) do_kalipi_tft_config;;
+          09\ *) do_update ;;
+          10\ *) do_about ;;
           *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
         esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
       fi
