@@ -12,7 +12,7 @@ BLACKLIST=/etc/modprobe.d/kalipi-blacklist.conf
 CONFIG=/boot/config.txt
 PROG_NAME="$0"
 ARGS="$@"
-VERSION="4.14-1.5.1"
+VERSION="4.14-1.5.2"
 
 info() {
     system="$1"
@@ -164,70 +164,47 @@ get_partvars () {
     ROOT_PART_END=$(echo "$ROOT_PART_LINE" | cut -d ":" -f 3)
 }
 
-get_can_expand() {
-  ROOT_PART=$(mount | sed -n 's|^/dev/\(.*\) on / .*|\1|p')
-
-  PART_NUM=${ROOT_PART#mmcblk0p}
-  if [ "$PART_NUM" = "$ROOT_PART" ]; then
-    echo 1
-    exit
+check_partvars () {
+  if [ "$BOOT_DEV_NAME" != "$ROOT_DEV_NAME" ]; then
+      FAIL_REASON="Boot and root partitions are on different devices"
+      return 1
   fi
 
-  if [ "$PART_NUM" -ne 2 ]; then
-    echo 1
-    exit
+  if [ "$ROOT_PART_NUM" -ne "$LAST_PART_NUM" ]; then
+    FAIL_REASON="Root partition should be last partition"
+    return 1
   fi
 
-  LAST_PART_NUM=$(parted /dev/mmcblk0 -ms unit s p | tail -n 1 | cut -f 1 -d:)
-  if [ $LAST_PART_NUM -ne $PART_NUM ]; then
-    echo 1
-    exit
+  if [ "$ROOT_PART_END" -gt "$TARGET_END" ]; then
+    FAIL_REASON="Root partition runs past the end of device"
+    return 1
   fi
-  echo 0
+
+  if [ ! -b "$ROOT_DEV" ] || [ ! -b "$ROOT_PART_DEV" ] || [ ! -b "$BOOT_PART_DEV" ] ; then
+    FAIL_REASON="Could not determine partitions"
+    return 1
+  fi
+}
+
+fix_partuuid() {
+  DISKID="$(fdisk -l "$ROOT_DEV" | sed -n 's/Disk identifier: 0x\([^ ]*\)/\1/p')"
+
+  sed -i "s/${OLD_DISKID}/${DISKID}/g" /etc/fstab
+  sed -i "s/${OLD_DISKID}/${DISKID}/" /boot/cmdline.txt
 }
 
 do_expand_rootfs() {
-  ROOT_PART=$(mount | sed -n 's|^/dev/\(.*\) on / .*|\1|p')
-
-  PART_NUM=${ROOT_PART#mmcblk0p}
-  if [ "$PART_NUM" = "$ROOT_PART" ]; then
-    whiptail --msgbox "$ROOT_PART is not an SD card. Don't know how to expand" 20 60 2
-    return 0
+  get_partvars
+  if ! check_partvars; then
+    whiptail --msgbox "Could not expand filesystem, please try manually.\n${FAIL_REASON}" 20 60
+    return 1
   fi
-
-  # NOTE: the NOOBS partition layout confuses parted. For now, let's only 
-  # agree to work with a sufficiently simple partition layout
-  if [ "$PART_NUM" -ne 2 ]; then
-    whiptail --msgbox "Your partition layout is not currently supported by this tool. You are probably using NOOBS, in which case your root filesystem is already expanded anyway." 20 60 2
-    return 0
+  if ! parted -m "$ROOT_DEV" u s resizepart "$ROOT_PART_NUM" "$TARGET_END"; then
+    whiptail --msgbox "Could not expand filesystem, please try manually.\nRoot partition resize failed" 20 60
+    return 1
   fi
-
-  LAST_PART_NUM=$(parted /dev/mmcblk0 -ms unit s p | tail -n 1 | cut -f 1 -d:)
-  if [ $LAST_PART_NUM -ne $PART_NUM ]; then
-    whiptail --msgbox "$ROOT_PART is not the last partition. Don't know how to expand" 20 60 2
-    return 0
-  fi
-
-  # Get the starting offset of the root partition
-  PART_START=$(parted /dev/mmcblk0 -ms unit s p | grep "^${PART_NUM}" | cut -f 2 -d: | sed 's/[^0-9]//g')
-  [ "$PART_START" ] || return 1
-  # Return value will likely be error for fdisk as it fails to reload the
-  # partition table because the root fs is mounted
-  fdisk /dev/mmcblk0 <<EOF
-p
-d
-$PART_NUM
-n
-p
-$PART_NUM
-$PART_START
-
-p
-w
-EOF
-
-  partprobe /dev/mmcblk0
-  resize2fs /dev/$ROOT_PART
+  partprobe "$ROOT_DEV"
+  fix_partuuid
   if [ "$INTERACTIVE" = True ]; then
     whiptail --msgbox "Root partition has been resized successfully." 20 60 2
   fi
@@ -1840,7 +1817,7 @@ if [ "" != "$missingpkgs" ]; then
 fi
 # And we want /boot to be mounted
 if ! grep -q boot /proc/mounts; then
-    mount /dev/mmcblk0p1 /boot
+    mount /boot
 fi
 if ! grep -q boot /proc/mounts; then
     printf "\n/boot must be mounted. Try 'mount /boot'\n\n"
