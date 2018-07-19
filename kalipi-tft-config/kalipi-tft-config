@@ -220,7 +220,7 @@ function check_dependencies() {
     if grep -q boot /proc/mounts; then
         :
     else
-	mount /dev/mmcblk0p1 /boot
+	mount /boot
         if grep -q boot /proc/mounts; then
             :
         else
