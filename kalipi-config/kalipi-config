@@ -12,7 +12,7 @@ BLACKLIST=/etc/modprobe.d/kalipi-blacklist.conf
 CONFIG=/boot/config.txt
 PROG_NAME="$0"
 ARGS="$@"
-VERSION="4.14-1.5.2"
+VERSION="4.14-1.6.0"
 
 info() {
     system="$1"
@@ -204,6 +204,7 @@ do_expand_rootfs() {
     return 1
   fi
   partprobe "$ROOT_DEV"
+  resize2fs $ROOT_PART_DEV
   fix_partuuid
   if [ "$INTERACTIVE" = True ]; then
     whiptail --msgbox "Root partition has been resized successfully." 20 60 2
