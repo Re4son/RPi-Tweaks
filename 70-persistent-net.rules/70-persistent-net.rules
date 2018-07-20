@@ -1,0 +1,6 @@
+# Assign wlan name according to the usb port used (2-5), 0 for internal
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="wlan*", NAME="wlan1"
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", KERNELS=="1-1.2:1.0", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="wlan*", NAME="wlan2"
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", KERNELS=="1-1.3:1.0", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="wlan*", NAME="wlan3"
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", KERNELS=="1-1.4:1.0", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="wlan*", NAME="wlan4"
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", KERNELS=="1-1.5:1.0", ATTR{dev_id}=="0x0", ATTR{type}=="1", KERNEL=="wlan*", NAME="wlan5"
