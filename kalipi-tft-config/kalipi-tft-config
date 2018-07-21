@@ -3,7 +3,7 @@
 PROG_NAME="$0"
 BASE_NAME=$(basename $PROG_NAME)
 ARGS="$@"
-VERSION="4.14-0.2.2"
+VERSION="4.14-0.4.0"
 INTERACTIVE=True
 CONFIG=/boot/config.txt
 CMDLINE=/boot/cmdline.txt
@@ -11,6 +11,7 @@ TITLE="Kali-Pi Touchscreen Setup  Tool ($BASE_NAME)"
 ROTATION=0
 ASK_TO_REBOOT=0
 TARGET_HOMEDIR=$HOME
+OVERLAY_MISSING=False 
 
 function print_version() {
     echo "Kali-Pi TFT Config $VERSION"
@@ -40,6 +41,16 @@ function do_update() {
         exec "$PROG_NAME"
     fi
     exit 0
+}
+
+function do_check_overlay() {
+    if [ ! -z "$1" ]; then
+        if [ -f /boot/overlays/$1.dtbo ]; then
+            return 0
+        fi
+    fi
+    OVERLAY_MISSING=True 
+    return 1
 }
 
 function do_get_overlays() {
@@ -1168,6 +1179,9 @@ EOF
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
 
+    # check overlay
+    do_check_overlay waveshare35a
+
     # success
     do_setup_success
 
@@ -1357,6 +1371,9 @@ EOF
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
 
+    # check overlay
+    do_check_overlay jbtek
+
     # success
     do_setup_success
 
@@ -1490,6 +1507,9 @@ EOF
     # resolve dependencies
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
+
+    # check overlay
+    do_check_overlay waveshare35a
 
     # success
     do_setup_success
@@ -1625,6 +1645,9 @@ EOF
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
 
+    # check overlay
+    do_check_overlay waveshare35a
+
     # success
     do_setup_success
 
@@ -1758,6 +1781,9 @@ EOF
     # resolve dependencies
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
+
+    # check overlay
+    do_check_overlay waveshare35a
 
     # success
     do_setup_success
@@ -1908,6 +1934,9 @@ EOF
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
 
+    # check overlay
+    do_check_overlay sainsmart32
+
     # success
     do_setup_success
 
@@ -2042,6 +2071,9 @@ EOF
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
 
+    # check overlay
+    do_check_overlay waveshare35a
+
     # success
     do_setup_success
 
@@ -2174,6 +2206,9 @@ EOF
     # resolve dependencies
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
+
+    # check overlay
+    do_check_overlay waveshare32b
 
     # success
     do_setup_success
@@ -2309,6 +2344,9 @@ EOF
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
 
+    # check overlay
+    do_check_overlay waveshare35a
+
     # success
     do_setup_success
 
@@ -2442,6 +2480,9 @@ EOF
     # resolve dependencies
     info PI-TFT "Resolving dependencies..."
     install_xserver-xorg-input-evdev
+
+    # check overlay
+    do_check_overlay waveshare35b
 
     # success
     do_setup_success
@@ -2899,13 +2940,30 @@ EOF
 
 function do_setup_success() {
     if [ "$INTERACTIVE" = True ]; then
-        whiptail --msgbox "\
+        if [ ! "$OVERLAY_MISSING" = True ]; then
+            whiptail --msgbox "\
 Success.
 
 The setup completed successfully.
 A restart is required before the new
 settings take effect.
 " 20 70 1
+        else
+            whiptail --msgbox "\
+WARNING!
+
+The setup completed successfully but:
+
+The overlay required by the selected screen cannot be
+found on the system.
+
+$$$ Try running the option \"4 Update Overlays\" in the main menu. 
+
+
+A restart is required before the new
+settings take effect.
+" 20 70 1
+        fi
     fi
 }
 
