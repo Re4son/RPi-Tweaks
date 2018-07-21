@@ -3,7 +3,7 @@
 PROG_NAME="$0"
 BASE_NAME=$(basename $PROG_NAME)
 ARGS="$@"
-VERSION="4.14-0.2.0"
+VERSION="4.14-0.2.1"
 INTERACTIVE=True
 CONFIG=/boot/config.txt
 CMDLINE=/boot/cmdline.txt
@@ -34,7 +34,7 @@ function do_update() {
     echo "${BASE_NAME} $VERSION"
     echo
     info UPDATE "With new version:"
-    "$PROG_NAME" --version
+    "$PROG_NAME" -v
     if [ "$INTERACTIVE" = True ]; then
         sleep 2 &&
         exec "$PROG_NAME"
