@@ -3,7 +3,7 @@
 PROG_NAME="$0"
 BASE_NAME=$(basename $PROG_NAME)
 ARGS="$@"
-VERSION="4.14-0.1.0"
+VERSION="4.14-0.2.0"
 INTERACTIVE=True
 CONFIG=/boot/config.txt
 CMDLINE=/boot/cmdline.txt
@@ -42,6 +42,23 @@ function do_update() {
     exit 0
 }
 
+function do_get_overlays() {
+    local TEMP_DIR="/tmp/"
+    local OVERLAYS_DIR="/boot/overlays"
+    local OVERLAYS_URL="https://re4son-kernel.com/overlays/"
+    if [ -d ${TEMP_DIR}/overlays ]; then
+        rm -rf ${TEMP_DIR}/overlays
+    fi
+    if ! wget -P ${TEMP_DIR} -r -nH --no-parent -e robots=off -R "index.html*" ${OVERLAYS_URL}; then
+        whiptail --msgbox "Could not update overlays, please try manually.\nDownload failed" 20 60 
+        return 1
+    fi
+    if ! cp -f ${TEMP_DIR}/overlays/*.dtb* ${OVERLAYS_DIR}; then
+        whiptail --msgbox "Could not update overlays, please try manually.\nInstallation failed" 20 60
+    fi
+    whiptail --msgbox "3rd Party overlays successfully updated." 20 60
+    return 0
+}
 function remove_tft() {
     if [ "$1" = silent ]; then
         SILENT=True
@@ -3302,9 +3319,10 @@ function do_main_menu() {
             "1 Setup Display" "Set up a new display" \
             "2 Remove Display" "Remove any existing display configuration" \
             "3 Show Config" "Show current display configuration" \
-            "4 Kali-Pi Config" "Run the kalipi-config setup tool for Kali-Pi" \
-            "5 Update" "Update $BASE_NAME" \
-            "6 About $BASE_NAME" "Information about $BASE_NAME" \
+            "4 Update Overlays" "Download latest 3rd party overlays" \
+            "5 Kali-Pi Config" "Run the kalipi-config setup tool for Kali-Pi" \
+            "6 Update" "Update $BASE_NAME" \
+            "7 About $BASE_NAME" "Information about $BASE_NAME" \
             3>&1 1>&2 2>&3)
         RET=$?
         if [ $RET -eq 1 ]; then
@@ -3314,9 +3332,10 @@ function do_main_menu() {
                 1\ *) do_setup_menu ;;
                 2\ *) remove_tft ;;
                 3\ *) do_show_config ;;
-                4\ *) do_kalipi_config ;;
-                5\ *) do_update ;;
-                6\ *) do_about ;;
+                4\ *) do_get_overlays ;;
+                5\ *) do_kalipi_config ;;
+                6\ *) do_update ;;
+                7\ *) do_about ;;
                 *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
             esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
         else
