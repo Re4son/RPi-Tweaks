@@ -3,7 +3,7 @@
 PROG_NAME="$0"
 BASE_NAME=$(basename $PROG_NAME)
 ARGS="$@"
-VERSION="4.14-0.4.0"
+VERSION="4.14-0.4.1"
 INTERACTIVE=True
 CONFIG=/boot/config.txt
 CMDLINE=/boot/cmdline.txt
@@ -2957,7 +2957,7 @@ The setup completed successfully but:
 The overlay required by the selected screen cannot be
 found on the system.
 
-$$$ Try running the option \"4 Update Overlays\" in the main menu. 
+\$\$\$ Try running the option \"4 Update Overlays\" in the main menu. \$\$\$
 
 
 A restart is required before the new
