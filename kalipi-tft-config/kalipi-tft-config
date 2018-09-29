@@ -3,7 +3,7 @@
 PROG_NAME="$0"
 BASE_NAME=$(basename $PROG_NAME)
 ARGS="$@"
-VERSION="4.14-0.4.2"
+VERSION="4.14-0.4.3"
 INTERACTIVE=True
 CONFIG=/boot/config.txt
 CMDLINE=/boot/cmdline.txt
@@ -28,19 +28,21 @@ function do_update() {
     TEMP_FILE="/tmp/${BASE_NAME}"
     info UPDATE "Downloading update"
     wget -O ${TEMP_FILE} https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/kalipi-tft-config/kalipi-tft-config
-    cp $TEMP_FILE $PROG_NAME
-    chmod +x $PROG_NAME
-    rm -f $TEMP_FILE
-    echo "Replaced old version:"
-    echo "${BASE_NAME} $VERSION"
-    echo
-    echo "With new version:"
-    "$PROG_NAME" -v
-    if [ "$INTERACTIVE" = True ]; then
-        sleep 2 &&
-        exec "$PROG_NAME"
-    fi
-    exit 0
+    if [ "$(grep Re4son ${TEMP_FILE})" ]; then
+       cp $TEMP_FILE $PROG_NAME
+       chmod +x $PROG_NAME
+       rm -f $TEMP_FILE
+       echo "Replaced old version:"
+       echo "${BASE_NAME} $VERSION"
+       echo
+       echo "With new version:"
+       "$PROG_NAME" -v
+       if [ "$INTERACTIVE" = True ]; then
+           sleep 2 &&
+           exec "$PROG_NAME"
+       fi
+       exit 0
+   fi
 }
 
 function do_check_overlay() {
