@@ -12,7 +12,7 @@ BLACKLIST=/etc/modprobe.d/kalipi-blacklist.conf
 CONFIG=/boot/config.txt
 PROG_NAME="$0"
 ARGS="$@"
-VERSION="4.14-1.7.0"
+VERSION="4.14-1.8.0"
 
 info() {
     system="$1"
@@ -1403,16 +1403,18 @@ do_update() {
     TEMP_FILE="/tmp/kalipi-config"
     info UPDATE "Downloading update"
     wget -O ${TEMP_FILE} https://raw.githubusercontent.com/Re4son/RPi-Tweaks/master/kalipi-config/kalipi-config
-    cp $TEMP_FILE $PROG_NAME
-    chmod +x $PROG_NAME
-    rm -f $TEMP_FILE
-    info UPDATE "Replaced old version:"
-    echo "kalipi-config Setup $VERSION"
-    echo
-    info UPDATE "With new version:"
-    "$PROG_NAME" --version
-    sleep 2 &&
-    exec "$PROG_NAME"
+    if [ "$(grep Re4son ${TEMP_FILE})" ]; then
+        cp $TEMP_FILE $PROG_NAME
+        chmod +x $PROG_NAME
+        rm -f $TEMP_FILE
+        info UPDATE "Replaced old version:"
+        echo "kalipi-config Setup $VERSION"
+        echo
+        info UPDATE "With new version:"
+        "$PROG_NAME" --version
+        sleep 2 &&
+        exec "$PROG_NAME"
+    fi
 }
 
 do_audio() {
@@ -1664,6 +1666,79 @@ EOF
   return $RET
 }
 
+do_swap_nexmon_firmware() {
+  local is_43430_nexmon="$(strings "/lib/firmware/brcm/brcmfmac43430-sdio.bin"|grep nexmon)"
+  if [ ! -f /lib/firmware/brcm/brcmfmac43430-sdio.nexmon.bin ]; then
+    if [ ! "" == "$is_43430_nexmon" ]; then
+      cp -f /lib/firmware/brcm/brcmfmac43430-sdio.bin /lib/firmware/brcm/brcmfmac43430-sdio.nexmon.bin 
+    else
+      whiptail --msgbox "No nexmon firmware found.\nInstall the Re4son-Kernel and try again." 20 60
+      return
+    fi 
+  fi
+  if [ ! -f /lib/firmware/brcm/brcmfmac43430-sdio.rpi.bin ]; then
+    wget https://raw.githubusercontent.com/RPi-Distro/firmware-nonfree/master/brcm/brcmfmac43430-sdio.bin -O /lib/firmware/brcm/brcmfmac43430-sdio.rpi.bin
+      if [ ! -f /lib/firmware/brcm/brcmfmac43430-sdio.rpi.bin ]; then
+         whiptail --msgbox "No OEM firmware found.\n Download OEM firmware to /lib/firmware/brcm/brcmfmac43430-sdio.rpi.bin and try again." 20 60
+         return
+      fi
+  fi
+  if [ ! "" == "$is_43430_nexmon" ]; then
+    whiptail --yesno "Nexmon firmware is currently installed. Would you like to replace it with OEM firmware?" $DEFAULT 20 60 2
+    RET=$?
+    if [ $RET -eq 0 ]; then
+      cp -f /lib/firmware/brcm/brcmfmac43430-sdio.rpi.bin /lib/firmware/brcm/brcmfmac43430-sdio.bin
+      whiptail --msgbox "OEM firmware successfully installed." 20 60
+    fi
+  else
+    whiptail --yesno "OEM firmware is currently installed. Would you like to replace it with nexmon firmware?" $DEFAULT 20 60 2
+    RET=$?
+    if [ $RET -eq 0 ]; then
+      cp -f /lib/firmware/brcm/brcmfmac43430-sdio.nexmon.bin /lib/firmware/brcm/brcmfmac43430-sdio.bin
+      whiptail --msgbox "Nexmon firmware successfully installed." 20 60
+    fi
+  fi
+  rmmod brcmfmac
+  modprobe brcmfmac
+  return 
+}
+
+do_swap_nexmon_firmware_plus() {
+  local is_43455_nexmon="$(strings "/lib/firmware/brcm/brcmfmac43455-sdio.bin"|grep nexmon)"
+  if [ ! -f /lib/firmware/brcm/brcmfmac43455-sdio.nexmon.bin ]; then
+    if [ ! "" == "$is_43455_nexmon" ]; then
+      cp -f /lib/firmware/brcm/brcmfmac43455-sdio.bin /lib/firmware/brcm/brcmfmac43455-sdio.nexmon.bin 
+    else
+      whiptail --msgbox "No nexmon firmware found.\nInstall the Re4son-Kernel and try again." 20 60
+      return
+    fi 
+  fi
+  if [ ! -f /lib/firmware/brcm/brcmfmac43455-sdio.rpi.bin ]; then
+    wget https://raw.githubusercontent.com/RPi-Distro/firmware-nonfree/master/brcm/brcmfmac43455-sdio.bin -O /lib/firmware/brcm/brcmfmac43455-sdio.rpi.bin
+      if [ ! -f /lib/firmware/brcm/brcmfmac43455-sdio.rpi.bin ]; then
+         whiptail --msgbox "No OEM firmware found.\n Download OEM firmware to /lib/firmware/brcm/brcmfmac43455-sdio.rpi.bin and try again." 20 60
+         return
+      fi
+  fi
+  if [ ! "" == "$is_43455_nexmon" ]; then
+    whiptail --yesno "Nexmon firmware is currently installed. Would you like to replace it with OEM firmware?" $DEFAULT 20 60 2
+    RET=$?
+    if [ $RET -eq 0 ]; then
+      cp -f /lib/firmware/brcm/brcmfmac43455-sdio.rpi.bin /lib/firmware/brcm/brcmfmac43455-sdio.bin
+      whiptail --msgbox "OEM firmware successfully installed." 20 60
+    fi
+  else
+    whiptail --yesno "OEM firmware is currently installed. Would you like to replace it with nexmon firmware?" $DEFAULT 20 60 2
+    RET=$?
+    if [ $RET -eq 0 ]; then
+      cp -f /lib/firmware/brcm/brcmfmac43455-sdio.nexmon.bin /lib/firmware/brcm/brcmfmac43455-sdio.bin
+      whiptail --msgbox "Nexmon firmware successfully installed." 20 60
+    fi
+  fi
+  rmmod brcmfmac
+  modprobe brcmfmac
+  return 
+}
 
 do_finish() {
 ##  disable_kalipi_config_at_boot
@@ -1950,6 +2025,8 @@ do_network_menu() {
     "N1 Hostname" "Set the visible name for this Pi on a network" \
     "N2 Wi-fi" "Enter SSID and passphrase" \
     "N3 Network interface names" "Enable/Disable predictable network interface names" \
+    "N4 Swap 43430 firmware" "Swap nexmon firmware and OEM firmware for Raspberry Pi 0W/3" \
+    "N5 Swap 43455 firmware" "Swap nexmon firmware and OEM firmware for Raspberry Pi 3+" \
     3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then
@@ -1959,6 +2036,8 @@ do_network_menu() {
       N1\ *) do_hostname ;;
       N2\ *) do_wifi_ssid_passphrase ;;
       N3\ *) do_net_names ;;
+      N4\ *) do_swap_nexmon_firmware ;;
+      N5\ *) do_swap_nexmon_firmware_plus ;;
       *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
     esac || whiptail --msgbox "There was an error running option $FUN" 20 60 1
   fi
