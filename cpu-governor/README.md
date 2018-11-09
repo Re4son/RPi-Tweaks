@@ -4,6 +4,7 @@ Raspberry Pi service to switch to ondemand cpu governor (unless shift key is pre
 
 #### To install the service:  
 
+*apt install triggerhappy*  
 *wget -O /etc/init.d/cpu-governor https://github.com/Re4son/RPi-Tweaks/raw/master/cpu-governor/cpu-governor*  
 *chmod +x /etc/init.d/cpu-governor*  
 *wget -O /lib/systemd/system/cpu-govenor.service https://github.com/Re4son/RPi-Tweaks/raw/master/cpu-governor/cpu-governor.service*  
