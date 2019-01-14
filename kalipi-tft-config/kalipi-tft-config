@@ -3,7 +3,7 @@
 PROG_NAME="$0"
 BASE_NAME=$(basename $PROG_NAME)
 ARGS="$@"
-VERSION="4.14-0.8.0"
+VERSION="4.14-1.1.0"
 INTERACTIVE=True
 CONFIG=/boot/config.txt
 CMDLINE=/boot/cmdline.txt
@@ -100,8 +100,13 @@ function remove_tft() {
     if [ -e ${TARGET_HOMEDIR}/.60-libinput.conf.bak ]; then
         mv ${TARGET_HOMEDIR}/.60-libinput.conf.bak /usr/share/X11/xorg.conf.d/60-libinput.conf
     fi
-    systemctl stop hyperpixel4-init.service && systemctl disable hyperpixel4-init.service
-    # Do not delete hyperpixel4-init.service files so we can use them again
+    systemctl stop hyperpixel4-init.service> /dev/null 2>&1
+    systemctl disable hyperpixel4-init.service> /dev/null 2>&1
+    systemctl stop hyperpixel-init.service> /dev/null 2>&1
+    systemctl disable hyperpixel-init.service> /dev/null 2>&1
+    systemctl stop hyperpixel-touch.service> /dev/null 2>&1
+    systemctl disable hyperpixel-touch.service> /dev/null 2>&1
+    # Do not delete hyperpixel service files so we can use them again
     # Do not delete 15-i2c-modprobe.rules and i2cprobe as they may come in handy later
     if [ "$INTERACTIVE" = True ]; then
         if [ "$SILENT" = False ]; then 
@@ -139,6 +144,7 @@ function print_help() {
     echo "                                             '4dpi'     (4D Systems 2.4\",3.2\" and 3.5\")"
     echo "                                             'elec22'   (Elecfreak 2.2\")"
     echo "                                             'hy28b'    (Hotmcu HY28B 2.8\")"
+    echo "                                             'hyper35'    (HyperPixel touch 3.5\")"
     echo "                                             'hyper4t'  (HyperPixel touch 4.0\")"
     echo "                                             'jb35'     (JBTek 3.5\")"
     echo "                                             'kum35'    (Kuman 3.5\")"
@@ -1579,6 +1585,157 @@ EOF
     # Otherwise exit if not interactive
     if [ ! "$INTERACTIVE" = True ]; then
         exit 0
+    fi
+    
+}
+
+function do_install_hyper35() {
+    # set framebuffer
+    FRAMEBUFFER="/dev/fb1"
+
+    # update /boot/config.txt
+    info PI-TFT "Updating /boot/config.txt..."
+    date=`date`
+    overlay="dtoverlay=hyperpixel"
+    overlay2="dtoverlay=hyperpixel-gpio-backlight"
+
+    cat >> /boot/config.txt <<EOF
+# --- added by re4son-pi-tft-setup $date ---
+dtparam=spi=on
+dtparam=i2c1=on
+dtparam=i2c_arm=on
+$overlay
+overscan_left=0
+overscan_right=0
+overscan_top=0
+overscan_bottom=0
+framebuffer_width=800
+framebuffer_height=480
+enable_dpi_lcd=1
+display_default_lcd=1
+dpi_group=2
+dpi_mode=87
+dpi_output_format=0x6f016
+display_rotate=2
+hdmi_timings=800 0 50 20 50 480 1 3 2 3 0 0 0 60 0 32000000 6
+
+# Use a basic GPIO backlight driver with on/off support
+$overlay2
+###########################################
+####  Overclocking the micro sdcard    ####
+#### Uncomment  84 for Raspberry Pi 2  ####
+# dtparam=sd_overclock=84
+#### Uncomment 100 for Raspberry Pi 3  ####
+# dtparam=sd_overclock=100
+###########################################
+# --- end re4son-pi-tft-setup $date ---
+EOF
+
+    # resolve dependencies
+    info PI-TFT "Resolving dependencies..."
+    install_xserver-xorg-input-evdev
+
+    if [ $(check_pkg python-evdev) -eq 0 ]; then
+        apt install -y python-evdev
+    fi
+
+    if [ $(check_pkg python-smbus) -eq 0 ]; then
+        apt install -y python-smbus
+    fi
+
+    # install hyperpixel init service
+    info PI-TFT "Installing HyperPixel init service"
+    if [ ! -f /usr/bin/hyperpixel-init ]; then
+        wget -O /usr/bin/hyperpixel-init https://github.com/pimoroni/hyperpixel/raw/master/requirements/usr/bin/hyperpixel-init
+    fi
+    chmod 755 /usr/bin/hyperpixel-init
+    if [ ! -f /etc/systemd/system/hyperpixel-init.service ]; then
+        cat >> /etc/systemd/system/hyperpixel-init.service <<EOF
+[Unit]
+Description=Hyperpixel LCD Display Initialization
+DefaultDependencies=no
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/hyperpixel-init
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    fi
+    systemctl enable hyperpixel-init.service
+    systemctl start hyperpixel-init.service
+
+    # install hyperpixel touch service
+    info PI-TFT "Installing HyperPixel touch service"
+    if [ ! -f /usr/bin/hyperpixel-touch ]; then
+        wget -O /usr/bin/hyperpixel-touch https://github.com/pimoroni/hyperpixel/raw/master/requirements/usr/bin/hyperpixel-touch
+    fi
+    chmod 755 /usr/bin/hyperpixel-touch
+    if [ ! -f /etc/systemd/system/hyperpixel-touch.service ]; then
+        cat >> /etc/systemd/system/hyperpixel-touch.service <<EOF
+[Unit]
+Description=Hyperpixel LCD Touch Screen Driver Daemon
+DefaultDependencies=no
+After=local-fs.target
+
+[Service]
+ExecStart=/usr/bin/hyperpixel-touch
+Restart=on-failure
+Type=forking
+PIDFile=/var/run/hyperpixel-touch.pid
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    fi
+    systemctl enable hyperpixel-touch.service
+    systemctl start hyperpixel-touch.service
+
+    # moving /usr/share/X11/xorg.conf.d/99-fbturbo.conf
+    info PI-TFT "Removing X11 fbturbo.conf..."
+    update_fbturbo_conf
+
+    # update ~/.profile
+    info PI-TFT "Updating user profile..."
+    update_profile
+
+    # update /etc/pointercal
+    info PI-TFT "Updating TSLib default calibration..."
+    if [ "$ROTATION" = 0 ]; then
+        pointercal="107331 -724 1595748 -1133 37223 1482024 65536 800 480 0"
+    elif [ "$ROTATION" = 180 ]; then
+        pointercal="108299 -918 -190660 -408 38342 -381668 65536 800 480 0"
+    fi
+    cat > /etc/pointercal <<EOF
+$pointercal
+EOF
+
+    # update /etc/udev/rules.d/95-xxxxx.rules
+    ##info PI-TFT "Updating udev rules for Touchscreen..."
+
+
+    # update /etc/modules
+    info PI-TFT "Updating /etc/modules..."
+    if ! grep -q "^i2c[-_]dev" /etc/modules; then
+        cat >> /etc/modules <<EOF
+# --- added by re4son-pi-tft-setup $date ---
+i2c-dev
+# --- end re4son-pi-tft-setup $date ---
+EOF
+    sudo modprobe -a i2c-dev
+fi
+
+    # success
+    do_setup_success
+
+    # reboot?
+    do_reboot
+
+    # Otherwise exit if not interactive
+    if [ ! "$INTERACTIVE" = True ]; then
+        exit 0yt
     fi
     
 }
@@ -4287,6 +4444,7 @@ function do_hotmcu_menu() {
 function do_hyperpixel_menu() {
     calc_wt_size
     SCREEN=$(whiptail --title "$TITLE" --menu "HyperPixel Touchscreen setup" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Back --ok-button Select \
+        "hyper35" "Pimoroni HyperPixel 3.5\" Touchscreen" \
         "hyper4t" "Pimoroni HyperPixel 4.0\" Touchscreen" \
         3>&1 1>&2 2>&3)
     RET=$?
@@ -4294,6 +4452,7 @@ function do_hyperpixel_menu() {
         return 0
     elif [ $RET -eq 0 ]; then
         case "$SCREEN" in
+            hyper35*) do_rotation_menu "ROT000 000" && do_homedir_menu && do_confirm_menu $SCREEN ;;
             hyper4t*) do_rotation_menu "ROT180 180" && do_homedir_menu && do_confirm_menu $SCREEN ;;
             *) whiptail --msgbox "Program error: unrecognized option" 20 60 1 ;;
         esac || whiptail --msgbox "There was an error running option $SCREEN" 20 60 1
@@ -4509,8 +4668,16 @@ function do_show_config() {
         local USRPROFILE=$(sed -n '/added by re4son-pi-tft-setup/,/end re4son-pi-tft-setup/p' "${TARGET_HOMEDIR}/.profile")
     fi
     if [ -f "/etc/systemd/system/hyperpixel4-init.service" ]; then
-        local HPPXLINIT=$(cat "/etc/systemd/system/hyperpixel4-init.service")
-        local HPPXLINITSTAT=$(systemctl status hyperpixel4-init.service)
+        local HPPXL4INIT=$(cat "/etc/systemd/system/hyperpixel4-init.service")
+        local HPPXL4INITSTAT=$(systemctl status hyperpixel4-init.service)
+    fi
+    if [ -f "/etc/systemd/system/hyperpixel-init.service" ]; then
+        local HPPXLINIT=$(cat "/etc/systemd/system/hyperpixel-init.service")
+        local HPPXLINITSTAT=$(systemctl status hyperpixel-init.service)
+    fi
+    if [ -f "/etc/systemd/system/hyperpixel-touch.service" ]; then
+        local HPPXLTOUCH=$(cat "/etc/systemd/system/hyperpixel-touch.service")
+        local HPPXLTOUCHSTAT=$(systemctl status hyperpixel-touch.service)
     fi
     if [ -f "/usr/lib/kalipi-sys-mods/i2cprobe" ]; then
         local I2CPROBE=$(cat "/usr/lib/kalipi-sys-mods/i2cprobe")
@@ -4549,6 +4716,18 @@ ${FBDEV}
 
 /etc/kbd/config:
 ${KBDCONF}
+
+/etc/systemd/system/hyperpixel-init.service:
+${HPPXLINIT}
+
+Status hyperpixel-init.service:
+${HPPXLINITSTAT}
+
+/etc/systemd/system/hyperpixel-touch.service:
+${HPPXTOUCH}
+
+Status hyperpixel-touch.service:
+${HPPXLTOUCHSTAT}
 
 /etc/systemd/system/hyperpixel4-init.service:
 ${HPPXLINIT}
@@ -4736,7 +4915,11 @@ case "${pitfttype}" in
 		ROTATION=90
                 do_install_hy28b
 		;;
-	hy28b)
+	hyper35)
+		ROTATION=0
+                do_install_hyper35()
+		;;
+	hyper4t)
 		ROTATION=0
                 do_install_hyper4t()
 		;;
