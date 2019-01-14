@@ -10,7 +10,9 @@
 |    Elecfreak       | elec22     |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
 |    Elecrow         | ecrow35    |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
 |      JBTek         | jb35       |     X     |     X    |     -    |    X    |    -    |    -    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
-|     Hotmcu         | hy28b      |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    -    |    X    |    -    |
+|     Hotmcu         | hy28b      |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
+| HyperPixel         | hyper      |     X     |     X    |     X    |    -    |    X    |    -    |    X    |    -    |    X    |    -    |    -    |    -    |    -    |    -    |
+| HyperPixel 4 touch | hyper4t    |     X     |     X    |     X    |    -    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |    -    |    X    |    -    |
 |      KeDei         | kedei35    |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
 |      Kuman         | kum35      |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
 |      Kuman         | kum35h     |     X     |     X    |     X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |    X    |
