@@ -3,7 +3,7 @@
 PROG_NAME="$0"
 BASE_NAME=$(basename $PROG_NAME)
 ARGS="$@"
-VERSION="4.14-1.1.0"
+VERSION="4.14-1.1.1"
 INTERACTIVE=True
 CONFIG=/boot/config.txt
 CMDLINE=/boot/cmdline.txt
@@ -1647,6 +1647,15 @@ EOF
     info PI-TFT "Installing HyperPixel init service"
     if [ ! -f /usr/bin/hyperpixel-init ]; then
         wget -O /usr/bin/hyperpixel-init https://github.com/pimoroni/hyperpixel/raw/master/requirements/usr/bin/hyperpixel-init
+	if [ ! $? == 0 ]; then
+            whiptail --msgbox "\
+Error:
+Failure to download the "hyperpixel-init" service file.
+Please check your Internet connection and try again.
+" 20 70 1
+            rm -f /usr/bin/hyperpixel-init
+            return 1
+        fi
     fi
     chmod 755 /usr/bin/hyperpixel-init
     if [ ! -f /etc/systemd/system/hyperpixel-init.service ]; then
@@ -1671,6 +1680,15 @@ EOF
     info PI-TFT "Installing HyperPixel touch service"
     if [ ! -f /usr/bin/hyperpixel-touch ]; then
         wget -O /usr/bin/hyperpixel-touch https://github.com/pimoroni/hyperpixel/raw/master/requirements/usr/bin/hyperpixel-touch
+	if [ ! $? == 0 ]; then
+            whiptail --msgbox "\
+Error:
+Failure to download the "hyperpixel-touch" service file.
+Please check your Internet connection and try again.
+" 20 70 1
+            rm -f /usr/bin/hyperpixel-touch
+            return 1
+        fi
     fi
     chmod 755 /usr/bin/hyperpixel-touch
     if [ ! -f /etc/systemd/system/hyperpixel-touch.service ]; then
@@ -1787,6 +1805,15 @@ EOF
     info PI-TFT "Installing HyperPixel 4 service"
     if [ ! -f /usr/bin/hyperpixel4-init ]; then
         wget -O /usr/bin/hyperpixel4-init https://github.com/pimoroni/hyperpixel4/raw/master/dist/hyperpixel4-init
+	if [ ! $? == 0 ]; then
+            whiptail --msgbox "\
+Error:
+Failure to download the "hyperpixel4-init" service file.
+Please check your Internet connection and try again.
+" 20 70 1
+            rm -f /usr/bin/hyperpixel4-init
+            return 1
+        fi
     fi
     chmod 755 /usr/bin/hyperpixel4-init
     if [ ! -f /etc/systemd/system/hyperpixel4-init.service ]; then
