@@ -12,7 +12,13 @@ BLACKLIST=/etc/modprobe.d/kalipi-blacklist.conf
 CONFIG=/boot/config.txt
 PROG_NAME="$0"
 ARGS="$@"
-VERSION="4.14-1.8.0"
+VERSION="4.19-1.1.0"
+
+
+if [[ ! "$LD_LIBRARY_PATH" =~ (^|:)"/opt/vc/lib"(|/)(:|$) ]]; then
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/vc/lib/;
+fi
+
 
 info() {
     system="$1"
